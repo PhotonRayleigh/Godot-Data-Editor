@@ -143,9 +143,21 @@ public class JSONInspector : Control
         int[] selection = GetNode<ItemList>("CenterControls/DataObjectsList").GetSelectedItems();
     }
 
-    protected void _onTestFSScanPpressed()
+    protected void _on_CreateFSViewTree_pressed()
     {
-        //TestFileSystem.RefreshDirectories();
+        TestFileSystem = new FSViewTree();
+        TestFileSystem.PrintRoot();
+    }
+
+    protected void _on_RefreshFSViewTree_pressed()
+    {
+        //GD.Print("Firing RefreshDirectories()");
+        Task.Run(() =>
+        {
+            TestFileSystem.RefreshDirectories();
+            //TestFileSystem.PrintTree(TestFileSystem.userRootDir);
+        });
+
     }
 
     protected void DefaultZooData()

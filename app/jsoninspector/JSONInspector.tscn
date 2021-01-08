@@ -226,14 +226,22 @@ margin_top = 426.74
 margin_right = 401.87
 margin_bottom = 455.74
 text = "Create FS View Tree"
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="RefreshFSViewTree" type="Button" parent="."]
-margin_left = 239.652
-margin_top = 476.631
-margin_right = 403.652
-margin_bottom = 505.631
+margin_left = 241.434
+margin_top = 478.413
+margin_right = 405.434
+margin_bottom = 507.413
 text = "Refresh View Tree"
+__meta__ = {
+"_edit_use_anchors_": false
+}
 [connection signal="pressed" from="CenterControls/ConvertToJson" to="." method="_OnConvertToJsonPressed"]
 [connection signal="pressed" from="CenterControls/ClearText" to="." method="_OnClearTextPressed"]
 [connection signal="pressed" from="CenterControls/SaveToFile" to="." method="_OnSaveToFilePressed"]
 [connection signal="pressed" from="CenterControls/LoadFromFile" to="." method="_OnLoadFromFilePressed"]
+[connection signal="pressed" from="CreateFSViewTree" to="." method="_on_CreateFSViewTree_pressed"]
+[connection signal="pressed" from="RefreshFSViewTree" to="." method="_on_RefreshFSViewTree_pressed"]

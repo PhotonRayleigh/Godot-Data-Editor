@@ -65,8 +65,8 @@ public class FSViewTree
     readonly string userDataDir = "";
     readonly string exePath = "";
 
-    DirNode userRootDir;
-    List<DirNode> userOpenDirs = new List<DirNode>();
+    public DirNode userRootDir;
+    public List<DirNode> userOpenDirs = new List<DirNode>();
 
     public FSViewTree()
     {
@@ -79,23 +79,25 @@ public class FSViewTree
 
     public void SetRootDirectory(string path)
     {
-        GD.Print("FSViewTree.cs: Setting Root directory")
+        GD.Print("FSViewTree.cs: Setting Root directory");
         // Need to check if directory exists or not.
         userRootDir = new DirNode(path);
         userRootDir.isOpen = true;
         // Crawl the root directory
-        new task(() => ScanDirectory(userRootDir));
-        GD.Print("FSViewTree.cs: Exiting SetRootDirectory()")
+        ScanDirectory(userRootDir);
+        GD.Print("FSViewTree.cs: Exiting SetRootDirectory()");
     }
 
     public void ScanDirectory(DirNode scanNode)
     {
         // Iterate folders
-        Task iterateFolders = new Task(() =>
+        Task iterateFolders = Task.Run(() =>
         {
+            //GD.Print("Entering iterateFolders 1");
             int listCount = scanNode.folders.Count;
             for (int i = 0; i < listCount; i++)
             {
+                //GD.Print($"iterateFolders i = {i}");
                 if (scanNode.folders[i].thisDir.Exists)
                 {
                     continue;
@@ -105,14 +107,17 @@ public class FSViewTree
                     scanNode.folders.RemoveAt(i);
                 }
             }
+            //GD.Print("Exiting iterateFolders 1");
         });
 
         // Iterate files
-        Task iterateFiles = new Task(() =>
+        Task iterateFiles = Task.Run(() =>
         {
+            //GD.Print("Entering iterateFiles 1");
             int listCount = scanNode.files.Count;
             for (int i = 0; i < listCount; i++)
             {
+                //GD.Print($"iterateFiles i = {i}");
                 if (scanNode.files[i].thisFile.Exists)
                 {
                     continue;
@@ -122,6 +127,7 @@ public class FSViewTree
                     scanNode.files.RemoveAt(i);
                 }
             }
+            //GD.Print("Exiting iterateFiles 1");
         });
 
 
@@ -132,11 +138,13 @@ public class FSViewTree
         iterateFiles.Wait();
 
         // Check for new folders and files
-        iterateFolders = new Task(() =>
+        iterateFolders = Task.Run(() =>
         {
+            //GD.Print("Entering iterateFolders 2");
             int listCount = directories.GetLength(0);
             for (int i = 0; i < listCount; i++)
             {
+                //GD.Print($"iterateFolders i = {i}");
                 if (scanNode.folders.Exists((DirNode d) =>
                 {
                     if (d.thisDir.FullName.Equals(directories[i].FullName)) return true;
@@ -147,13 +155,16 @@ public class FSViewTree
                     scanNode.folders.Add(new DirNode(directories[i], scanNode));
                 }
             }
+            //GD.Print("Exiting iterateFolders 2");
         });
 
-        iterateFiles = new Task(() =>
+        iterateFiles = Task.Run(() =>
         {
+            //GD.Print("Entering iterateFiles 2");
             int listCount = files.GetLength(0);
             for (int i = 0; i < listCount; i++)
             {
+                //GD.Print($"iterateFiles i = {i}");
                 if (scanNode.files.Exists((FileNode f) =>
                 {
                     if (f.thisFile.FullName.Equals(files[i].FullName)) return true;
@@ -164,6 +175,7 @@ public class FSViewTree
                     scanNode.files.Add(new FileNode(files[i], scanNode));
                 }
             }
+            //GD.Print("Exiting iterateFiles 2");
         });
 
         iterateFolders.Wait();
@@ -187,9 +199,38 @@ public class FSViewTree
         }
     }
 
+    public void PrintRoot()
+    {
+        foreach (DirNode directory in userRootDir.folders)
+        {
+            GD.Print($"RootDir entry: {directory.path}");
+        }
+        foreach (FileNode File in userRootDir.files)
+        {
+            GD.Print($"RootDir entry: {File.path}");
+        }
+    }
+
+    public void PrintTree(DirNode directory)
+    {
+        foreach (DirNode folder in directory.folders)
+        {
+            GD.Print(folder.path);
+            if (folder.folders.Count > 0)
+            {
+                PrintTree(folder);
+            }
+        }
+        foreach (FileNode file in directory.files)
+        {
+            GD.Print(file.path);
+        }
+    }
+
     public void RefreshDirectories()
     // TODO: Hook this up and test it.
     {
+        //GD.Print("RefreshDirectories(): Entering function");
         if (userRootDir == null)
         {
             GD.PrintErr("FSViewTree.RefreshDirectories(): Error, root directory is not set.");
@@ -201,8 +242,6 @@ public class FSViewTree
             return;
         }
 
-        int level = 0;
-        int nodes = 0;
         bool scanning = true;
         ScanDirectory(userRootDir);
         Stack<IterationInfo> itrStack = new Stack<IterationInfo>();
@@ -211,38 +250,36 @@ public class FSViewTree
 
         while (scanning)
         {
-            // We are at top
-            // Scan each directory
-            // if a directory has sub directories, push state on stack and scan sub directories
-            // when done with a sub directory, pop the stack and return to the parent iterator
-            GD.Print($"Current directory is: {currentDir.path} on iteration {currentItr.currentIndex} out of {currentItr.FinalIndex}");
-            if (currentItr.Count > 0)
+            //GD.Print($"Current directory is: {currentDir.path} on iteration {currentItr.currentIndex} out of {currentItr.FinalIndex}");
+            if ((currentItr.currentIndex < currentItr.Count))
             {
-                ScanDirectory(currentDir.folders[currentItr.currentIndex]);
-                if (currentDir.folders[currentItr.currentIndex].folders.Count > 0)
+                DirNode checkFolder = currentDir.folders[currentItr.currentIndex];
+                ScanDirectory(checkFolder);
+                if (checkFolder.folders.Count > 0)
                 {
-                    currentDir = currentDir.folders[currentItr.currentIndex];
+                    //currentItr.currentIndex++;
                     itrStack.Push(currentItr);
+                    currentDir = checkFolder;
                     currentItr = new IterationInfo() { Count = currentDir.folders.Count };
 
-                    continue; // We are starting fresh, to take it back to the top.
-                              // Only increment and check when we don't step into 
-                              // a new folder
+                    continue;
                 }
             }
 
-            currentItr.currentIndex++;
-            if (currentItr.currentIndex > currentItr.FinalIndex && currentDir.parent != null)
+            if (currentItr.currentIndex >= currentItr.FinalIndex && currentDir.parent != null)
             {
                 currentItr = itrStack.Pop();
 
                 currentDir = currentDir.parent;
             }
-            else if (currentItr.currentIndex > currentItr.FinalIndex && currentDir.parent == null)
+            else if (currentItr.currentIndex >= currentItr.FinalIndex && currentDir.parent == null)
             {
                 scanning = false;
             }
+
+            currentItr.currentIndex++;
         }
+        //GD.Print("RefreshDirectories(): Exiting function");
     }
 
     // Custom Types for this class 
