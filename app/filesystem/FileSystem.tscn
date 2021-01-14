@@ -87,6 +87,7 @@ margin_bottom = 16.0
 items = [ "Rename", null, 0, false, false, 0, 0, null, "", false, "New File", null, 0, false, false, 1, 0, null, "", false, "New Folder", null, 0, false, false, 2, 0, null, "", false, "Delete Selection", null, 0, false, false, 3, 0, null, "", false ]
 script = SubResource( 2 )
 [connection signal="gui_input" from="FileSystemScroll/FileSystemList" to="." method="_OnFileSystemListGuiInput"]
+[connection signal="item_collapsed" from="FileSystemScroll/FileSystemList" to="." method="_OnFileSystemListItemCollapsed"]
 [connection signal="focus_exited" from="ContextMenu" to="ContextMenu" method="_on_ContextMenu_focus_exited"]
 [connection signal="popup_hide" from="ContextMenu" to="." method="_OnContextMenuPopupHide"]
 [connection signal="visibility_changed" from="ContextMenu" to="ContextMenu" method="_on_ContextMenu_visibility_changed"]

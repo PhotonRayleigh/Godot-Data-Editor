@@ -2,67 +2,93 @@ using Godot;
 using Godot.Collections;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 public class FileSystem : Panel
 {
-    // Todo: make a backend representation of the
-    // directory that carries meta data.
-    // Build the UI off the backend data.
-    // Model -> View pattern.
-    public Directory WorkingDirectory = new Directory();
+    protected bool userEditable = false;
+    public FSViewTree? userWorkingTree;
     public Tree? FileSystemList;
     protected PopupMenu? ContextMenu;
     public string Path = "user://";
+    protected System.Collections.Generic.Dictionary<TreeItem, FSViewTree.Node> FSAssocList
+        = new System.Collections.Generic.Dictionary<TreeItem, FSViewTree.Node>();
     public override void _Ready()
     {
         FileSystemList = GetNode<Tree>("FileSystemScroll/FileSystemList");
         ContextMenu = GetNode<PopupMenu>("ContextMenu");
-        UpdateTree();
+        userWorkingTree = new FSViewTree();
+        Task.Run(() =>
+        {
+            userWorkingTree.RefreshDirectories();
+            UpdateTree();
+        });
     }
 
     public void UpdateTree()
     {
+        userEditable = false;
         FileSystemList!.Clear();
+        FSAssocList.Clear();
         TreeItem treeRoot;
         treeRoot = FileSystemList.CreateItem();
-        treeRoot.SetText(0, Path);
-        if (WorkingDirectory.Open(Path) == Error.Ok)
-        {
-            CrawlDirectory(WorkingDirectory, treeRoot);
-        }
-        else
-        {
-            GD.PrintErr($"FileSystemPanel.UpdateTree: Error opening directory \"{Path}\"");
-        }
-        return;
+        treeRoot.SetText(0, userWorkingTree!.userRootDir.name);
+        FSAssocList.Add(treeRoot, userWorkingTree.userRootDir);
 
-        void CrawlDirectory(Directory dir, TreeItem root)
+        TreeItem workingTreeItem = treeRoot;
+        FSViewTree.DirNode workingDirNode = userWorkingTree.userRootDir;
+        Stack<int[]> counters = new Stack<int[]>();
+        Stack<TreeItem> treeItemStack = new Stack<TreeItem>();
+        int[] currentCounter = { 0, workingDirNode.folders.Count - 1, 0 }; // [0] = current index, [1] = final index, [2] = files processed
+        bool scanning = true;
+
+        while (scanning)
         {
-            dir.ListDirBegin();
-            string fileName = dir.GetNext();
-            while (!fileName.Equals(""))
+            // Todo: Finish this
+            if (currentCounter[0] <= currentCounter[1])
             {
-                if (fileName.Equals(".") || fileName.Equals(".."))
-                {
+                FSViewTree.DirNode currentFolder = workingDirNode.folders[currentCounter[0]];
+                TreeItem treeBuffer = FileSystemList.CreateItem(workingTreeItem);
+                treeBuffer.SetText(0, currentFolder.name);
+                FSAssocList.Add(treeBuffer, currentFolder);
+                if (currentFolder.isOpen) treeBuffer.Collapsed = false;
+                else treeBuffer.Collapsed = true;
 
-                }
-                else if (dir.CurrentIsDir())
+                if (currentFolder.folders.Count > 0)
                 {
-                    TreeItem itemBuffer = FileSystemList.CreateItem(root);
-                    itemBuffer.SetText(0, $"{fileName}/");
-                    Directory dirNext = new Directory();
-                    dirNext.Open(dir.GetCurrentDir() + "/" + fileName);
-                    CrawlDirectory(dirNext, itemBuffer);
+                    counters.Push(currentCounter);
+                    treeItemStack.Push(workingTreeItem);
+                    workingTreeItem = treeBuffer;
+                    workingDirNode = currentFolder;
+                    currentCounter = new int[] { 0, workingDirNode.folders.Count - 1 };
+                    continue;
                 }
-                else
-                {
-                    TreeItem itemBuffer = FileSystemList.CreateItem(root);
-                    itemBuffer.SetText(0, $"{fileName}");
-                }
-                fileName = dir.GetNext();
             }
-            return;
+
+            if (currentCounter[0] >= currentCounter[1])
+            {
+                foreach (FSViewTree.FileNode file in workingDirNode.files)
+                {
+                    TreeItem treeBuffer = FileSystemList.CreateItem(treeRoot);
+                    treeBuffer.SetText(0, file.name);
+                    FSAssocList.Add(treeBuffer, file);
+                }
+            }
+
+            if ((currentCounter[0] >= currentCounter[1]) && workingDirNode.parent == null)
+            {
+                scanning = false;
+            }
+            else if ((currentCounter[0] >= currentCounter[1]) && workingDirNode.parent != null)
+            {
+                currentCounter = counters.Pop();
+                workingDirNode = workingDirNode.parent;
+                workingTreeItem = treeItemStack.Pop();
+            }
+            currentCounter[0]++;
         }
+        userEditable = true;
+        return;
     }
 
     public string GetSelectedPath()
@@ -145,94 +171,32 @@ public class FileSystem : Panel
     {
 
     }
-}
 
-internal class FileTree
-{
-    // This will be the backing data structure for the displayed
-    // FileSystem Control. This will produce the items for the display tree
-    // to be built from and manage what directories are loaded and actively being
-    // viewed by the user.
-
-    /*
-        Basic flow?:
-            Specify root directory, this is our reference point;
-                If root does not exists or ever goes away, we have to abort;
-                Don't need to crash the program, but the file system dock will have to display the error;
-            While the directory exists:
-                The user can view it;
-                The user can perform operations:
-                    Copy
-                    Move
-                    Rename
-                    Delete
-                    New File
-                    New Directory
-                NOTE: These operations CAN happen outside of this program.
-                    Before any operation, we need to refresh our view of the system and make sure the
-                    action is valid;
-                    Or blindly try it and catch any errors that may occur;
-                    Generally, we want the view to accurately reflect the actual file system.
-            Operations can happen at any time, but are sparse. Can reasonably assume
-                it won't change too much over time;
-    */
-
-    string dirRootSys = "";
-    string dirRootGodot = "user://";
-
-    internal FileTree()
+    bool FSCollapseRunning = false;
+    protected void _OnFileSystemListItemCollapsed(TreeItem item)
     {
-        Directory rootDir = new Directory();
-        if (rootDir.Open(dirRootGodot) == Error.Ok)
+        if (!userEditable) return;
+        if (FSCollapseRunning) return;
+        FSCollapseRunning = true;
+        Task.Run(() =>
         {
-            dirRootSys = OS.GetUserDataDir();
-        }
-
+            GD.Print($"TreeItem, {item.GetText(0)}, collapsed!");
+            FSViewTree.DirNode? fsNode = FSAssocList[item] as FSViewTree.DirNode;
+            if (fsNode!.parent != null)
+            {
+                if (item.Collapsed == true)
+                {
+                    userWorkingTree!.CloseDirectory(fsNode);
+                }
+                else
+                {
+                    userWorkingTree!.OpenDirectory(fsNode);
+                }
+                userWorkingTree.RefreshDirectories();
+                UpdateTree();
+            }
+            FSCollapseRunning = false;
+        });
+        return;
     }
-}
-
-
-internal class FileSystemEntry
-{
-    internal enum FileType { folder, file }
-    protected FileType type;
-    internal string path = "";
-    internal string name = "";
-    protected ulong DisplayTreeOID;
-    internal DirEntry? parent; // Is null if root.
-
-    // Todo: Finish filling out the relevant info
-}
-
-internal class FileEntry : FileSystemEntry
-{
-    internal FileEntry()
-    {
-        type = FileType.file;
-    }
-}
-
-internal class DirEntry : FileSystemEntry
-{
-    internal DirEntry()
-    {
-        type = FileType.folder;
-    }
-
-    internal DirEntry(string path)
-    {
-        type = FileType.folder;
-        this.path = path;
-        this.name = path.Substring(path.FindLast("/", false) + 1);
-        // TODO: Finish constructor
-    }
-
-    internal DirEntry(string path, DirEntry parent)
-    {
-        type = FileType.folder;
-        // TODO: extract necessary info
-    }
-
-    internal List<FileEntry> files = new List<FileEntry>();
-    internal List<DirEntry> folders = new List<DirEntry>();
 }

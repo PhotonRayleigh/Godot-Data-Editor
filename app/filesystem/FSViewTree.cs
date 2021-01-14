@@ -3,26 +3,19 @@ using Godot.Collections;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 public class FSViewTree
 {
     /*
         Scratch pad:
-        First things first I need to get down the process that will formulate the
-        application's internal cache of the file system in question. It will be a simple
-        tree that represents all the directories the user is currently browsing. 
-        
-        I should also make a list to store directories that are opened by the user.
-        Thinking:
-        DirNode UserRoot;
-        List<DirNode> OpenedDirs = new List<DirNode>();
+        New paradigm: thread friendly, not threaded by default.
+        I would like all of the FSViewTree operations to happen in their own thread.
+        However, I don't know how to properly do this without making a terrible mess.
 
-        Should I include a field to indicate if a node is open or not? Probably.
-        I should be able to use that to determine how deep to crawl the directory.
-
-        Perhaps... I should handle the trees in a disposable way. Every refresh, build a new tree using the
-        old tree, then discard the old tree? I do need opened objects to be presistant though....
+        So, instead, I will make the class thread friendly, and if the calling objects need
+        the functions to happen in threads, the calling object can handle that.
     */
 
     /*
@@ -79,18 +72,17 @@ public class FSViewTree
 
     public void SetRootDirectory(string path)
     {
-        GD.Print("FSViewTree.cs: Setting Root directory");
         // Need to check if directory exists or not.
         userRootDir = new DirNode(path);
         userRootDir.isOpen = true;
         // Crawl the root directory
         ScanDirectory(userRootDir);
-        GD.Print("FSViewTree.cs: Exiting SetRootDirectory()");
     }
+
 
     public void ScanDirectory(DirNode scanNode)
     {
-        // Iterate folders
+        // Check that existing folders still exist
         Task iterateFolders = Task.Run(() =>
         {
             //GD.Print("Entering iterateFolders 1");
@@ -110,7 +102,7 @@ public class FSViewTree
             //GD.Print("Exiting iterateFolders 1");
         });
 
-        // Iterate files
+        // Check that existing files still exist
         Task iterateFiles = Task.Run(() =>
         {
             //GD.Print("Entering iterateFiles 1");
@@ -130,14 +122,12 @@ public class FSViewTree
             //GD.Print("Exiting iterateFiles 1");
         });
 
-
-
         DirectoryInfo[] directories = scanNode.thisDir.GetDirectories();
         FileInfo[] files = scanNode.thisDir.GetFiles();
         iterateFolders.Wait();
         iterateFiles.Wait();
 
-        // Check for new folders and files
+        // Check for new folders
         iterateFolders = Task.Run(() =>
         {
             //GD.Print("Entering iterateFolders 2");
@@ -158,6 +148,7 @@ public class FSViewTree
             //GD.Print("Exiting iterateFolders 2");
         });
 
+        // Check for new files
         iterateFiles = Task.Run(() =>
         {
             //GD.Print("Entering iterateFiles 2");
@@ -187,6 +178,7 @@ public class FSViewTree
     {
         openNode.isOpen = true;
         ScanDirectory(openNode);
+        return;
     }
 
     public void CloseDirectory(DirNode closeNode)
@@ -197,6 +189,7 @@ public class FSViewTree
             subNode.folders.Clear();
             subNode.files.Clear();
         }
+        return;
     }
 
     public void PrintRoot()
@@ -227,9 +220,15 @@ public class FSViewTree
         }
     }
 
+
+    protected bool isRefreshing = false;
+
+    // While refreshing is happening, do not refresh again within the same FSViewTree.
     public void RefreshDirectories()
     // TODO: Hook this up and test it.
     {
+        if (isRefreshing) return;
+        isRefreshing = true;
         //GD.Print("RefreshDirectories(): Entering function");
         if (userRootDir == null)
         {
@@ -251,7 +250,7 @@ public class FSViewTree
         while (scanning)
         {
             //GD.Print($"Current directory is: {currentDir.path} on iteration {currentItr.currentIndex} out of {currentItr.FinalIndex}");
-            if ((currentItr.currentIndex < currentItr.Count))
+            if ((currentItr.currentIndex < currentItr.Count) && currentDir.isOpen)
             {
                 DirNode checkFolder = currentDir.folders[currentItr.currentIndex];
                 ScanDirectory(checkFolder);
@@ -280,6 +279,8 @@ public class FSViewTree
             currentItr.currentIndex++;
         }
         //GD.Print("RefreshDirectories(): Exiting function");
+        isRefreshing = false;
+        return;
     }
 
     // Custom Types for this class 

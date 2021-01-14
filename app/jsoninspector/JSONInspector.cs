@@ -155,7 +155,7 @@ public class JSONInspector : Control
         Task.Run(() =>
         {
             TestFileSystem.RefreshDirectories();
-            //TestFileSystem.PrintTree(TestFileSystem.userRootDir);
+            TestFileSystem.PrintTree(TestFileSystem.userRootDir);
         });
 
     }

@@ -221,6 +221,7 @@ __meta__ = {
 }
 
 [node name="CreateFSViewTree" type="Button" parent="."]
+visible = false
 margin_left = 237.87
 margin_top = 426.74
 margin_right = 401.87
@@ -231,6 +232,7 @@ __meta__ = {
 }
 
 [node name="RefreshFSViewTree" type="Button" parent="."]
+visible = false
 margin_left = 241.434
 margin_top = 478.413
 margin_right = 405.434
