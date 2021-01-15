@@ -18,6 +18,8 @@ public class FileSystem : Panel
         FileSystemList = GetNode<Tree>("FileSystemScroll/FileSystemList");
         ContextMenu = GetNode<PopupMenu>("ContextMenu");
         userWorkingTree = new FSViewTree();
+        // This is a best example of how these classes should be used
+        // Just run blocking operations in their own threads. 
         Task.Run(() =>
         {
             userWorkingTree.RefreshDirectories();
@@ -25,9 +27,14 @@ public class FileSystem : Panel
         });
     }
 
+    bool isUpdating = false;
     public void UpdateTree()
     {
+        if (isUpdating) return;
+
         userEditable = false;
+        isUpdating = true;
+
         FileSystemList!.Clear();
         FSAssocList.Clear();
         TreeItem treeRoot;
@@ -44,7 +51,6 @@ public class FileSystem : Panel
 
         while (scanning)
         {
-            // Todo: Finish this
             if (currentCounter[0] <= currentCounter[1])
             {
                 FSViewTree.DirNode currentFolder = workingDirNode.folders[currentCounter[0]];
@@ -88,6 +94,8 @@ public class FileSystem : Panel
             currentCounter[0]++;
         }
         userEditable = true;
+        isUpdating = false;
+
         return;
     }
 
@@ -180,7 +188,7 @@ public class FileSystem : Panel
         FSCollapseRunning = true;
         Task.Run(() =>
         {
-            GD.Print($"TreeItem, {item.GetText(0)}, collapsed!");
+            //GD.Print($"TreeItem, {item.GetText(0)}, collapsed!");
             FSViewTree.DirNode? fsNode = FSAssocList[item] as FSViewTree.DirNode;
             if (fsNode!.parent != null)
             {
