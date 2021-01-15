@@ -225,7 +225,6 @@ public class FSViewTree
 
     // While refreshing is happening, do not refresh again within the same FSViewTree.
     public void RefreshDirectories()
-    // TODO: Hook this up and test it.
     {
         if (isRefreshing) return;
         isRefreshing = true;
