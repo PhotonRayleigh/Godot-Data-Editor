@@ -39,7 +39,7 @@ public class FileSystem : Panel
         FSAssocList.Clear();
         TreeItem treeRoot;
         treeRoot = FileSystemList.CreateItem();
-        treeRoot.SetText(0, userWorkingTree!.userRootDir.name);
+        treeRoot.SetText(0, userWorkingTree!.userRootDir.name + "/");
         FSAssocList.Add(treeRoot, userWorkingTree.userRootDir);
 
         TreeItem workingTreeItem = treeRoot;
@@ -55,7 +55,7 @@ public class FileSystem : Panel
             {
                 FSViewTree.DirNode currentFolder = workingDirNode.folders[currentCounter[0]];
                 TreeItem treeBuffer = FileSystemList.CreateItem(workingTreeItem);
-                treeBuffer.SetText(0, currentFolder.name);
+                treeBuffer.SetText(0, currentFolder.name + "/");
                 FSAssocList.Add(treeBuffer, currentFolder);
                 if (currentFolder.isOpen) treeBuffer.Collapsed = false;
                 else treeBuffer.Collapsed = true;
@@ -75,7 +75,7 @@ public class FileSystem : Panel
             {
                 foreach (FSViewTree.FileNode file in workingDirNode.files)
                 {
-                    TreeItem treeBuffer = FileSystemList.CreateItem(treeRoot);
+                    TreeItem treeBuffer = FileSystemList.CreateItem(workingTreeItem);
                     treeBuffer.SetText(0, file.name);
                     FSAssocList.Add(treeBuffer, file);
                 }
@@ -101,34 +101,8 @@ public class FileSystem : Panel
 
     public string GetSelectedPath()
     {
-        string selectedPath = "";
         TreeItem selection = FileSystemList!.GetSelected();
-        List<TreeItem> parents = new List<TreeItem>();
-        if (selection != null)
-        {
-            TreeItem active = selection;
-            bool isNotNull = true;
-
-            while (isNotNull)
-            {
-                TreeItem parent = active.GetParent();
-                if (parent == null)
-                {
-                    isNotNull = false;
-                }
-                else
-                {
-                    parents.Add(parent);
-                    active = parent;
-                }
-            }
-            for (int i = parents.Count - 1; i >= 0; i--)
-            {
-                selectedPath += parents[i].GetText(0);
-            }
-            selectedPath += selection.GetText(0);
-        }
-        return selectedPath;
+        return FSAssocList[selection].path;
     }
 
     protected void _OnFileSystemListGuiInput(InputEvent e)

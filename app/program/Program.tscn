@@ -65,7 +65,7 @@ __meta__ = {
 }
 
 [node name="Label" type="Label" parent="AppHook/Start/VBoxContainer"]
-margin_right = 323.0
+margin_right = 345.0
 margin_bottom = 50.0
 theme = ExtResource( 2 )
 custom_fonts/font = SubResource( 1 )
@@ -74,8 +74,8 @@ align = 1
 
 [node name="Label2" type="Label" parent="AppHook/Start/VBoxContainer"]
 margin_top = 54.0
-margin_right = 323.0
-margin_bottom = 81.0
+margin_right = 345.0
+margin_bottom = 83.0
 text = "Please pick a program to run using the Menu"
 align = 1
 
