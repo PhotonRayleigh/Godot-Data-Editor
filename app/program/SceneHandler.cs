@@ -64,8 +64,8 @@ public class SceneHandler : Node
 
     protected void SwitchApp()
     {
-        Node NewScene = SceneOnDeck.Instance();
-        foreach (Node Child in AppHook.GetChildren())
+        Node NewScene = SceneOnDeck!.Instance();
+        foreach (Node Child in AppHook!.GetChildren())
         {
             AppHook.RemoveChild(Child);
             Child.QueueFree();

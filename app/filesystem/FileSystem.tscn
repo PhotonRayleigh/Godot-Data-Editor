@@ -41,15 +41,28 @@ __meta__ = {
 "_editor_description_": "A Control Node that displays a folder directory and displays it in a Tree Node."
 }
 
-[node name="FilePath" type="LineEdit" parent="."]
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
 anchor_right = 1.0
-margin_right = -0.000183105
-margin_bottom = 29.0
+margin_bottom = 33.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="FilePath" type="LineEdit" parent="HBoxContainer"]
+margin_right = 940.0
+margin_bottom = 33.0
+size_flags_horizontal = 3
 text = "user://"
 editable = false
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="RefreshButton" type="Button" parent="HBoxContainer"]
+margin_left = 944.0
+margin_right = 1014.0
+margin_bottom = 33.0
+text = "Refresh"
 
 [node name="FileSystemScroll" type="ScrollContainer" parent="."]
 anchor_right = 1.0
@@ -87,6 +100,7 @@ margin_right = 16.0
 margin_bottom = 16.0
 items = [ "Rename", null, 0, false, false, 0, 0, null, "", false, "New File", null, 0, false, false, 1, 0, null, "", false, "New Folder", null, 0, false, false, 2, 0, null, "", false, "Delete Selection", null, 0, false, false, 3, 0, null, "", false ]
 script = SubResource( 2 )
+[connection signal="pressed" from="HBoxContainer/RefreshButton" to="." method="_OnRefreshButtonPressed"]
 [connection signal="gui_input" from="FileSystemScroll/FileSystemList" to="." method="_OnFileSystemListGuiInput"]
 [connection signal="item_collapsed" from="FileSystemScroll/FileSystemList" to="." method="_OnFileSystemListItemCollapsed"]
 [connection signal="focus_exited" from="ContextMenu" to="ContextMenu" method="_on_ContextMenu_focus_exited"]

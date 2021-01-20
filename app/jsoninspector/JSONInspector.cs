@@ -53,7 +53,7 @@ public class JSONInspector : Control
     public string LoadJsonFile()
     {
         File file = new File();
-        string path = FileSystemPanel!.GetSelectedPath();
+        string? path = FileSystemPanel!.GetSelectedPath();
         string buffer;
         Error result = file.Open(path, File.ModeFlags.Read);
         if (result == Error.Ok) buffer = file.GetAsText();
@@ -154,8 +154,8 @@ public class JSONInspector : Control
         //GD.Print("Firing RefreshDirectories()");
         Task.Run(() =>
         {
-            TestFileSystem.RefreshDirectories();
-            TestFileSystem.PrintTree(TestFileSystem.userRootDir);
+            TestFileSystem!.RefreshDirectories();
+            TestFileSystem.PrintTree(TestFileSystem.userRootDir!);
         });
 
     }

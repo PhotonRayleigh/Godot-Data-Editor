@@ -6,18 +6,30 @@ using System.Threading.Tasks;
 
 public class FileSystem : Panel
 {
+    /*
+        Custom FileSystem Control for Godot.
+        Used for browsing and operating on a local working directory in the OS filesystem.
+
+        ToDo:
+            User selectable root folder
+            Implement file operations
+            Automatic refresh on filesystem changes (only when main window is back in focus)
+    */
     protected bool userEditable = false;
     public FSViewTree? userWorkingTree;
-    public Tree? FileSystemList;
-    protected PopupMenu? ContextMenu;
-    public string Path = "user://";
+    public Tree? FileSystemListNode;
+    protected PopupMenu? ContextMenuNode;
+    protected LineEdit? FilePathNode;
+    public string path = "user://";
     protected System.Collections.Generic.Dictionary<TreeItem, FSViewTree.Node> FSAssocList
         = new System.Collections.Generic.Dictionary<TreeItem, FSViewTree.Node>();
     public override void _Ready()
     {
-        FileSystemList = GetNode<Tree>("FileSystemScroll/FileSystemList");
-        ContextMenu = GetNode<PopupMenu>("ContextMenu");
-        userWorkingTree = new FSViewTree();
+        FileSystemListNode = GetNode<Tree>("FileSystemScroll/FileSystemList");
+        ContextMenuNode = GetNode<PopupMenu>("ContextMenu");
+        FilePathNode = GetNode<LineEdit>("HBoxContainer/FilePath");
+        userWorkingTree = new FSViewTree(path);
+        FilePathNode.Text = userWorkingTree.userRootDir!.path;
         // This is a best example of how these classes should be used
         // Just run blocking operations in their own threads. 
         Task.Run(() =>
@@ -35,11 +47,11 @@ public class FileSystem : Panel
         userEditable = false;
         isUpdating = true;
 
-        FileSystemList!.Clear();
+        FileSystemListNode!.Clear();
         FSAssocList.Clear();
         TreeItem treeRoot;
-        treeRoot = FileSystemList.CreateItem();
-        treeRoot.SetText(0, userWorkingTree!.userRootDir.name + "/");
+        treeRoot = FileSystemListNode.CreateItem();
+        treeRoot.SetText(0, userWorkingTree!.userRootDir!.name + "/");
         FSAssocList.Add(treeRoot, userWorkingTree.userRootDir);
 
         TreeItem workingTreeItem = treeRoot;
@@ -54,7 +66,7 @@ public class FileSystem : Panel
             if (currentCounter[0] <= currentCounter[1])
             {
                 FSViewTree.DirNode currentFolder = workingDirNode.folders[currentCounter[0]];
-                TreeItem treeBuffer = FileSystemList.CreateItem(workingTreeItem);
+                TreeItem treeBuffer = FileSystemListNode.CreateItem(workingTreeItem);
                 treeBuffer.SetText(0, currentFolder.name + "/");
                 FSAssocList.Add(treeBuffer, currentFolder);
                 if (currentFolder.isOpen) treeBuffer.Collapsed = false;
@@ -75,7 +87,7 @@ public class FileSystem : Panel
             {
                 foreach (FSViewTree.FileNode file in workingDirNode.files)
                 {
-                    TreeItem treeBuffer = FileSystemList.CreateItem(workingTreeItem);
+                    TreeItem treeBuffer = FileSystemListNode.CreateItem(workingTreeItem);
                     treeBuffer.SetText(0, file.name);
                     FSAssocList.Add(treeBuffer, file);
                 }
@@ -99,9 +111,9 @@ public class FileSystem : Panel
         return;
     }
 
-    public string GetSelectedPath()
+    public string? GetSelectedPath()
     {
-        TreeItem selection = FileSystemList!.GetSelected();
+        TreeItem selection = FileSystemListNode!.GetSelected();
         return FSAssocList[selection].path;
     }
 
@@ -122,7 +134,7 @@ public class FileSystem : Panel
                 //GD.Print("Right mouse button was released.");
                 Vector2 view = GetViewport().GetVisibleRect().Size;
                 Vector2 mousePos = mouseEvent.GlobalPosition;
-                Vector2 contextSize = ContextMenu!.RectSize;
+                Vector2 contextSize = ContextMenuNode!.RectSize;
                 Vector2 contextPos = new Vector2(mousePos);
                 if (mousePos.x + contextSize.x > view.x)
                 {
@@ -140,9 +152,9 @@ public class FileSystem : Panel
                 {
                     mousePos.y = 0;
                 }
-                ContextMenu!.SetGlobalPosition(contextPos);
-                ContextMenu!.Show();
-                ContextMenu!.GrabFocus();
+                ContextMenuNode!.SetGlobalPosition(contextPos);
+                ContextMenuNode!.Show();
+                ContextMenuNode!.GrabFocus();
             }
         }
 
@@ -180,5 +192,16 @@ public class FileSystem : Panel
             FSCollapseRunning = false;
         });
         return;
+    }
+
+    protected void _OnRefreshButtonPressed()
+    {
+        if (isUpdating) return;
+        if (userWorkingTree!.IsRefreshing) return;
+        Task.Run(() =>
+            {
+                userWorkingTree!.RefreshDirectories();
+                UpdateTree();
+            });
     }
 }

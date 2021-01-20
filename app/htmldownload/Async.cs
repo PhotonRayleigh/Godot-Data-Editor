@@ -89,6 +89,9 @@ public class ConnectionFactory
 {
     public async Task<MyConnection> CreateConnectionAsync()
     {
-        return new MyConnection() { Connection = "Hello!" };
+        return await Task.Run(() =>
+        {
+            return new MyConnection() { Connection = "Hello!" };
+        });
     }
 }

@@ -37,7 +37,7 @@ public class MenuPanel : Panel
 
     public void _OnPrintMenuChildren()
     {
-        Utilities.PrintChildrenRecursive(MyMenu);
+        Utilities.PrintChildrenRecursive(MyMenu!);
     }
 
 }

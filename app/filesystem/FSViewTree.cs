@@ -58,23 +58,44 @@ public class FSViewTree
     readonly string userDataDir = "";
     readonly string exePath = "";
 
-    public DirNode userRootDir;
+    public DirNode? userRootDir;
     public List<DirNode> userOpenDirs = new List<DirNode>();
 
     public FSViewTree()
     {
         userDataDir = OS.GetUserDataDir();
         exePath = OS.GetExecutablePath();
-        //userRootDir = new DirNode(userDataDir); // user:// is the default path.
         SetRootDirectory(userDataDir);
-        isRootDirUser = true;
+    }
+
+    public FSViewTree(string rootPath)
+    {
+        userDataDir = OS.GetUserDataDir();
+        exePath = OS.GetExecutablePath();
+        SetRootDirectory(rootPath);
     }
 
     public void SetRootDirectory(string path)
     {
-        // Need to check if directory exists or not.
-        userRootDir = new DirNode(path);
+        string cleanPath = path.Replace('\\', '/');
+
+        if (cleanPath.Equals(GDUserPath))
+        {
+            cleanPath = userDataDir;
+            isRootDirUser = true;
+        }
+        else if (cleanPath.Equals(userDataDir)) isRootDirUser = true;
+        else isRootDirUser = false;
+
+        userRootDir = new DirNode(cleanPath);
+
+        if (userRootDir.thisDir.Exists == false)
+        {
+            throw new FileNotFoundException($"Error: FSViewTree.SetRootDirectory() attempted to open path \'{path}\', which does not exist.");
+        }
+
         userRootDir.isOpen = true;
+
         // Crawl the root directory
         ScanDirectory(userRootDir);
     }
@@ -194,7 +215,7 @@ public class FSViewTree
 
     public void PrintRoot()
     {
-        foreach (DirNode directory in userRootDir.folders)
+        foreach (DirNode directory in userRootDir!.folders)
         {
             GD.Print($"RootDir entry: {directory.path}");
         }
@@ -222,6 +243,7 @@ public class FSViewTree
 
 
     protected bool isRefreshing = false;
+    public bool IsRefreshing { get => isRefreshing; }
 
     // While refreshing is happening, do not refresh again within the same FSViewTree.
     public void RefreshDirectories()
@@ -289,9 +311,10 @@ public class FSViewTree
     {
         public readonly NodeType type;
         public DirNode? parent;
-        public string path;
-        public string name;
+        public string? path;
+        public string? name;
         public bool isOpen = false;
+
 
         public Node(FSViewTree.NodeType type)
         {
@@ -367,6 +390,23 @@ public class FSViewTree
                 count = value;
                 finalIndex = value - 1;
             }
+        }
+    }
+
+    protected class DirectoryNotFoundException : Exception
+    {
+        public DirectoryNotFoundException()
+        {
+
+        }
+        public DirectoryNotFoundException(string message) : base(message)
+        {
+
+        }
+
+        public DirectoryNotFoundException(string message, Exception inner) : base(message, inner)
+        {
+
         }
     }
 }
