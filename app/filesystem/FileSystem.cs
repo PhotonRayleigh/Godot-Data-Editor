@@ -13,6 +13,8 @@ public class FileSystem : Panel
         ToDo:
             User selectable root folder
             Implement file operations
+                Enable de-select of entries when clicking on background
+                Resize context menu to fit entries
             Automatic refresh on filesystem changes (only when main window is back in focus)
     */
     protected bool userEditable = false;
@@ -132,33 +134,132 @@ public class FileSystem : Panel
             if (Input.IsActionJustReleased("mouse_right_click"))
             {
                 //GD.Print("Right mouse button was released.");
-                Vector2 view = GetViewport().GetVisibleRect().Size;
-                Vector2 mousePos = mouseEvent.GlobalPosition;
-                Vector2 contextSize = ContextMenuNode!.RectSize;
-                Vector2 contextPos = new Vector2(mousePos);
-                if (mousePos.x + contextSize.x > view.x)
-                {
-                    contextPos.x = view.x - contextSize.x;
-                }
-                else if (mousePos.x < 0)
-                {
-                    contextPos.x = 0;
-                }
-                if (mousePos.y + contextSize.y > view.y)
-                {
-                    contextPos.y = view.y - contextSize.y;
-                }
-                else if (mousePos.y < 0)
-                {
-                    mousePos.y = 0;
-                }
-                ContextMenuNode!.SetGlobalPosition(contextPos);
-                ContextMenuNode!.Show();
-                ContextMenuNode!.GrabFocus();
+                ShowContextMenu(mouseEvent.GlobalPosition);
             }
         }
 
         return;
+    }
+
+    protected void ShowContextMenu(Vector2 globalPosition)
+    {
+        PopulateContextMenu();
+        Vector2 view = GetViewport().GetVisibleRect().Size;
+        Vector2 mousePos = globalPosition;
+        Vector2 contextSize = ContextMenuNode!.RectSize;
+        Vector2 contextPos = new Vector2(mousePos);
+        if (mousePos.x + contextSize.x > view.x)
+        {
+            contextPos.x = view.x - contextSize.x;
+        }
+        else if (mousePos.x < 0)
+        {
+            contextPos.x = 0;
+        }
+        if (mousePos.y + contextSize.y > view.y)
+        {
+            contextPos.y = view.y - contextSize.y;
+        }
+        else if (mousePos.y < 0)
+        {
+            mousePos.y = 0;
+        }
+        ContextMenuNode!.SetGlobalPosition(contextPos);
+        ContextMenuNode!.Show();
+        ContextMenuNode!.GrabFocus();
+    }
+
+    protected System.Collections.Generic.Dictionary<int, FileOperations> contextMenuAssocList =
+        new System.Collections.Generic.Dictionary<int, FileOperations>();
+
+    public enum FileOperations
+    {
+        NewFolder, NewFile, Rename, Delete
+    }
+
+    protected void PopulateContextMenu()
+    {
+        ContextMenuNode!.Clear();
+        contextMenuAssocList.Clear();
+        List<FSViewTree.Node> selectedEntries = GetSelectedEntries();
+        //bool containsFiles = false;
+        //bool containsFolders = false;
+        if (selectedEntries.Count == 0)
+        {
+            // New file
+            // New folder
+            ContextMenuNode.AddItem("New Folder...", 0);
+            contextMenuAssocList.Add(0, FileOperations.NewFolder);
+            ContextMenuNode.AddItem("New File...", 1);
+            contextMenuAssocList.Add(1, FileOperations.NewFile);
+        }
+        else if (selectedEntries.Count == 1)
+        {
+            // New File
+            // New Folder
+            // Rename
+            // Delete
+            ContextMenuNode.AddItem("Rename");
+            contextMenuAssocList.Add(0, FileOperations.Rename);
+            ContextMenuNode.AddItem("Delete");
+            contextMenuAssocList.Add(1, FileOperations.Delete);
+            ContextMenuNode.AddItem("New Folder...");
+            contextMenuAssocList.Add(2, FileOperations.NewFolder);
+            ContextMenuNode.AddItem("New File...");
+            contextMenuAssocList.Add(3, FileOperations.NewFile);
+        }
+        else
+        {
+            // Delete
+            ContextMenuNode.AddItem("Delete Items");
+            contextMenuAssocList.Add(0, FileOperations.Delete);
+            /*
+            foreach (FSViewTree.Node node in selectedEntries)
+            {
+                if (node.type == FSViewTree.NodeType.file) containsFiles = true;
+                else if (node.type == FSViewTree.NodeType.folder) containsFolders = true;
+            }
+            if (containsFiles && !containsFolders)
+            {
+                // Delete
+            }
+            else if (!containsFiles && containsFolders)
+            {
+                // Delete
+            }
+            else
+            {
+                // Delete
+            }
+            */
+        }
+    }
+
+    public List<FSViewTree.Node> GetSelectedEntries()
+    {
+        List<FSViewTree.Node> selectedEntries = new List<FSViewTree.Node>();
+        TreeItem? nextSelected = null;
+        List<TreeItem> selectedTreeItems = new List<TreeItem>();
+        bool continueScan = true;
+        while (continueScan)
+        {
+            nextSelected = FileSystemListNode!.GetNextSelected(nextSelected);
+            if (nextSelected == null)
+            {
+                continueScan = false;
+            }
+            else
+            {
+                selectedTreeItems.Add(nextSelected);
+            }
+        }
+
+        foreach (TreeItem item in selectedTreeItems)
+        {
+            selectedEntries.Add(FSAssocList[item]);
+        }
+
+        return selectedEntries;
     }
 
     protected void _OnContextMenuPopupHide()
