@@ -2,6 +2,7 @@ using Godot;
 using Godot.Collections;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 public class FileSystem : Panel
@@ -39,6 +40,12 @@ public class FileSystem : Panel
             userWorkingTree.RefreshDirectories();
             UpdateTree();
         });
+    }
+
+    public FileSystem()
+    {
+        myThread = new System.Threading.Thread(new System.Threading.ThreadStart(ThreadProc));
+        myThread.Start();
     }
 
     bool isUpdating = false;
@@ -141,6 +148,11 @@ public class FileSystem : Panel
         return;
     }
 
+    protected void _OnFileSystemListNothingSelected()
+    {
+        FileSystemListNode!.GetRoot().CallRecursive("deselect", 0);
+    }
+
     protected void ShowContextMenu(Vector2 globalPosition)
     {
         PopulateContextMenu();
@@ -174,12 +186,13 @@ public class FileSystem : Panel
 
     public enum FileOperations
     {
-        NewFolder, NewFile, Rename, Delete
+        NewFolder, NewFile, Rename, Delete, Move, Copy
     }
 
     protected void PopulateContextMenu()
     {
         ContextMenuNode!.Clear();
+        ContextMenuNode.RectSize = new Vector2(ContextMenuNode.RectSize.x, 16);
         contextMenuAssocList.Clear();
         List<FSViewTree.Node> selectedEntries = GetSelectedEntries();
         //bool containsFiles = false;
@@ -268,30 +281,76 @@ public class FileSystem : Panel
     }
 
     bool FSCollapseRunning = false;
+
+    private delegate void ThreadTask(System.Object[] args);
+    private Queue<QueueItem> ThreadWorkQueue = new Queue<QueueItem>();
+
+    struct QueueItem
+    {
+        public ThreadTask proc;
+        public System.Object[] args;
+    }
+
+    private System.Threading.Thread myThread;
+    private bool alive = true;
+    // EventWaitHandle is the modern way to stop and start threads.
+    // Resume and Suspend are obsolete.
+    private EventWaitHandle ewh = new EventWaitHandle(false, EventResetMode.AutoReset);
+
+    private void ThreadProc()
+    {
+        while (alive)
+        {
+            while (ThreadWorkQueue.Count != 0)
+            {
+                QueueItem myTask = ThreadWorkQueue.Dequeue();
+                myTask.proc.Invoke(myTask.args);
+            }
+            ewh.WaitOne();
+        }
+    }
+
     protected void _OnFileSystemListItemCollapsed(TreeItem item)
     {
         if (!userEditable) return;
         if (FSCollapseRunning) return;
-        FSCollapseRunning = true;
-        Task.Run(() =>
+        System.Object[] myArgs = new System.Object[] { item };
+        void myFunc(System.Object[] args)
         {
-            //GD.Print($"TreeItem, {item.GetText(0)}, collapsed!");
-            FSViewTree.DirNode? fsNode = FSAssocList[item] as FSViewTree.DirNode;
-            if (fsNode!.parent != null)
+            GD.Print(args);
+            GD.Print(System.Threading.Thread.CurrentThread.ManagedThreadId);
+            RefreshOnCollapse((args[0] as TreeItem)!);
+        }
+        ThreadWorkQueue.Enqueue(new QueueItem() { proc = myFunc, args = myArgs });
+        if (!myThread.IsAlive)
+        {
+            ewh.Set();
+        }
+    }
+
+    public void RefreshOnCollapse(TreeItem item)
+    {
+
+        FSCollapseRunning = true;
+        //Task.Run(() =>
+        //{
+        //GD.Print($"TreeItem, {item.GetText(0)}, collapsed!");
+        FSViewTree.DirNode? fsNode = FSAssocList[item] as FSViewTree.DirNode;
+        if (fsNode!.parent != null)
+        {
+            if (item.Collapsed == true)
             {
-                if (item.Collapsed == true)
-                {
-                    userWorkingTree!.CloseDirectory(fsNode);
-                }
-                else
-                {
-                    userWorkingTree!.OpenDirectory(fsNode);
-                }
-                userWorkingTree.RefreshDirectories();
-                UpdateTree();
+                userWorkingTree!.CloseDirectory(fsNode);
             }
-            FSCollapseRunning = false;
-        });
+            else
+            {
+                userWorkingTree!.OpenDirectory(fsNode);
+            }
+            userWorkingTree.RefreshDirectories();
+            UpdateTree();
+        }
+        FSCollapseRunning = false;
+        //});
         return;
     }
 
