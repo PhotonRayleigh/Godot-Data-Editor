@@ -39,14 +39,21 @@ public class FileSystem : Panel
         // Just run blocking operations in their own threads. 
         workerThread.EnqueueWork(() =>
         {
-            userWorkingTree.RefreshDirectories();
-            UpdateTree();
+            RefreshFileSystem();
         });
     }
 
     public FileSystem()
     {
 
+    }
+    protected void RefreshFileSystem()
+    {
+        //Task.Run(() =>
+        //{
+        userWorkingTree!.RefreshDirectories();
+        UpdateTree();
+        //});
     }
 
     bool isUpdating = false;
@@ -286,51 +293,40 @@ public class FileSystem : Panel
     {
         if (!userEditable) return; // This is important because the signal is fired when the tree is being built.
         //if (FSCollapseRunning) return;
-
-        workerThread.EnqueueWork(() => RefreshOnCollapse(item));
-        //RefreshOnCollapse(item);
-    }
-
-    protected void RefreshOnCollapse(TreeItem item)
-    {
-
         FSCollapseRunning = true;
-        //Task.Run(() =>
-        //{
-        //GD.Print($"TreeItem, {item.GetText(0)}, collapsed!");
-        FSViewTree.DirNode? fsNode = FSAssocList[item] as FSViewTree.DirNode;
-        if (fsNode!.parent != null)
+        userEditable = false;
+
+        workerThread.EnqueueWork(() =>
         {
-            if (item.Collapsed == true)
+            //Task.Run(() =>
+            //{
+            //GD.Print($"TreeItem, {item.GetText(0)}, collapsed!");
+            FSViewTree.DirNode? fsNode = FSAssocList[item] as FSViewTree.DirNode;
+            if (fsNode!.parent != null)
             {
-                userWorkingTree!.CloseDirectory(fsNode);
+                if (item.Collapsed == true)
+                {
+                    userWorkingTree!.CloseDirectory(fsNode);
+                }
+                else
+                {
+                    userWorkingTree!.OpenDirectory(fsNode);
+                }
+                userWorkingTree.RefreshDirectories();
+                UpdateTree();
             }
-            else
-            {
-                userWorkingTree!.OpenDirectory(fsNode);
-            }
-            userWorkingTree.RefreshDirectories();
-            UpdateTree();
-        }
-        FSCollapseRunning = false;
-        //});
-        return;
+            FSCollapseRunning = false;
+            //});
+            return;
+        });
+        //RefreshOnCollapse(item);
     }
 
     protected void _OnRefreshButtonPressed()
     {
-        if (isUpdating) return;
-        if (userWorkingTree!.IsRefreshing) return;
-        workerThread.EnqueueWork(() => RefreshOnButtonPressed());
+        //if (isUpdating) return;
+        //if (userWorkingTree!.IsRefreshing) return;
+        workerThread.EnqueueWork(() => RefreshFileSystem());
         //RefreshOnButtonPressed();
-    }
-
-    protected void RefreshOnButtonPressed()
-    {
-        //Task.Run(() =>
-        //{
-        userWorkingTree!.RefreshDirectories();
-        UpdateTree();
-        //});
     }
 }

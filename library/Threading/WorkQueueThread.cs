@@ -40,7 +40,6 @@ namespace SparkLib
             {
 
                 ThreadQueueItem workItem;
-                //Monitor.Enter(workQueue);
                 if (workQueue.TryDequeue(out workItem))
                 {
                     workItem.taskStatus = QueueItemStatus.InProgress;
@@ -51,9 +50,6 @@ namespace SparkLib
 
                 if (workQueue.IsEmpty)
                     re.Reset();
-                //Monitor.Exit(workQueue);
-                //threadSuspend.Reset();
-                //threadSuspend.WaitOne();
                 re.Wait();
             }
             return;
