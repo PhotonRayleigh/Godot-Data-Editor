@@ -56,7 +56,7 @@ __meta__ = {
 
 [node name="Back Button" type="Button" parent="HBoxContainer"]
 margin_right = 28.0
-margin_bottom = 40.0
+margin_bottom = 29.0
 icon = ExtResource( 2 )
 __meta__ = {
 "_edit_use_anchors_": false
@@ -65,7 +65,7 @@ __meta__ = {
 [node name="Forward Button" type="Button" parent="HBoxContainer"]
 margin_left = 32.0
 margin_right = 60.0
-margin_bottom = 40.0
+margin_bottom = 29.0
 icon = ExtResource( 4 )
 __meta__ = {
 "_edit_use_anchors_": false
@@ -74,7 +74,7 @@ __meta__ = {
 [node name="Up Button" type="Button" parent="HBoxContainer"]
 margin_left = 64.0
 margin_right = 92.0
-margin_bottom = 40.0
+margin_bottom = 29.0
 icon = ExtResource( 5 )
 __meta__ = {
 "_edit_use_anchors_": false
@@ -83,7 +83,7 @@ __meta__ = {
 [node name="FilePath" type="LineEdit" parent="HBoxContainer"]
 margin_left = 96.0
 margin_right = 982.0
-margin_bottom = 40.0
+margin_bottom = 29.0
 size_flags_horizontal = 3
 text = "user://"
 editable = false
@@ -94,7 +94,7 @@ __meta__ = {
 [node name="RefreshButton" type="Button" parent="HBoxContainer"]
 margin_left = 986.0
 margin_right = 1014.0
-margin_bottom = 40.0
+margin_bottom = 29.0
 icon = ExtResource( 3 )
 
 [node name="FileSystemScroll" type="ScrollContainer" parent="."]

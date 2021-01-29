@@ -37,7 +37,7 @@ public class FileSystem : Panel
         FilePathNode.Text = userWorkingTree.userRootDir!.path;
         // This is a best example of how these classes should be used
         // Just run blocking operations in their own threads. 
-        Task.Run(() =>
+        workerThread.EnqueueWork(() =>
         {
             userWorkingTree.RefreshDirectories();
             UpdateTree();
@@ -52,7 +52,7 @@ public class FileSystem : Panel
     bool isUpdating = false;
     public void UpdateTree()
     {
-        if (isUpdating) return;
+        //if (isUpdating) return;
 
         userEditable = false;
         isUpdating = true;
@@ -284,11 +284,11 @@ public class FileSystem : Panel
     bool FSCollapseRunning = false;
     protected void _OnFileSystemListItemCollapsed(TreeItem item)
     {
-        if (!userEditable) return;
-        if (FSCollapseRunning) return;
+        if (!userEditable) return; // This is important because the signal is fired when the tree is being built.
+        //if (FSCollapseRunning) return;
 
-        workerThread.EnqueueWork(new System.Object[] { item },
-                                    (System.Object[] args) => RefreshOnCollapse((args[0] as TreeItem)!));
+        workerThread.EnqueueWork(() => RefreshOnCollapse(item));
+        //RefreshOnCollapse(item);
     }
 
     protected void RefreshOnCollapse(TreeItem item)
@@ -321,12 +321,16 @@ public class FileSystem : Panel
     {
         if (isUpdating) return;
         if (userWorkingTree!.IsRefreshing) return;
-        workerThread.EnqueueWork((System.Object[] args) => RefreshOnButtonPressed());
+        workerThread.EnqueueWork(() => RefreshOnButtonPressed());
+        //RefreshOnButtonPressed();
     }
 
     protected void RefreshOnButtonPressed()
     {
+        //Task.Run(() =>
+        //{
         userWorkingTree!.RefreshDirectories();
         UpdateTree();
+        //});
     }
 }

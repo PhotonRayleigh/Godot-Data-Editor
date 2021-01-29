@@ -108,19 +108,27 @@ public class FSViewTree
         {
             //GD.Print("Entering iterateFolders 1");
             int listCount = scanNode.folders.Count;
+            List<DirNode> deleteIndicies = new List<DirNode>();
             for (int i = 0; i < listCount; i++)
             {
                 //GD.Print($"iterateFolders i = {i}");
-                if (scanNode.folders[i].thisDir.Exists)
+                //DirectoryInfo checkDir = new DirectoryInfo(scanNode.folders[i].path);
+                if (System.IO.Directory.Exists(scanNode.folders[i].path))
                 {
+                    //scanNode.folders[i] = new DirNode(checkDir, scanNode.folders[i].parent);
                     continue;
                 }
                 else
                 {
-                    scanNode.folders.RemoveAt(i);
+                    deleteIndicies.Add(scanNode.folders[i]);
+                    //scanNode.folders.RemoveAt(i);
                 }
             }
             //GD.Print("Exiting iterateFolders 1");
+            foreach (DirNode i in deleteIndicies)
+            {
+                scanNode.folders.Remove(i);
+            }
         });
 
         // Check that existing files still exist
@@ -128,19 +136,27 @@ public class FSViewTree
         {
             //GD.Print("Entering iterateFiles 1");
             int listCount = scanNode.files.Count;
+            List<FileNode> deleteIndicies = new List<FileNode>();
             for (int i = 0; i < listCount; i++)
             {
                 //GD.Print($"iterateFiles i = {i}");
-                if (scanNode.files[i].thisFile.Exists)
+                //FileInfo checkFile = new FileInfo(scanNode.files[i].path);
+                if (System.IO.File.Exists(scanNode.files[i].path))
                 {
+                    //scanNode.files[i] = new FileNode(checkFile, scanNode.files[i].parent);
                     continue;
                 }
                 else
                 {
-                    scanNode.files.RemoveAt(i);
+                    deleteIndicies.Add(scanNode.files[i]);
+                    //scanNode.files.RemoveAt(i);
                 }
             }
             //GD.Print("Exiting iterateFiles 1");
+            foreach (FileNode i in deleteIndicies)
+            {
+                scanNode.files.Remove(i);
+            }
         });
 
         DirectoryInfo[] directories = scanNode.thisDir.GetDirectories();
@@ -248,7 +264,7 @@ public class FSViewTree
     // While refreshing is happening, do not refresh again within the same FSViewTree.
     public void RefreshDirectories()
     {
-        if (isRefreshing) return;
+        //if (isRefreshing) return;
         isRefreshing = true;
         //GD.Print("RefreshDirectories(): Entering function");
         if (userRootDir == null)

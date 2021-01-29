@@ -2,19 +2,29 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading;
 
+/*
+    Threading constructs:
+    lock (object) {code here} // This is synatic sugar for the Monitor object?
+    Semaphore
+    EventWaitHandle (ManualResetEvent/AutoResetEvent)
+    Monitor (Monitor.Enter(object)/Monitor.Exit())
+    SpinLock
+    Interlocked
+    Channels
+
+    Any others?
+*/
+
 namespace SparkLib
 {
-    public delegate void ThreadAction();
-    public delegate void ThreadMethod(Object[] args);
-    public delegate void ThreadFunction(ref Object output);
-    public delegate void ThreadFunctionParam(Object[] args, ref Object output);
-
     public class WorkQueueThread
     {
         protected Thread workThread;
         protected CancellationTokenSource source = new CancellationTokenSource(); // Saw this somewhere, not sure why they used it.
                                                                                   // Using it here to remind myself to look into it.
-        protected EventWaitHandle threadSuspend = new EventWaitHandle(false, EventResetMode.AutoReset);
+                                                                                  //protected EventWaitHandle threadSuspend = new EventWaitHandle(false, EventResetMode.ManualReset);
+                                                                                  //protected EventWaitHandle threadSuspend = new EventWaitHandle(false, EventResetMode.ManualReset);
+        protected ManualResetEventSlim re = new ManualResetEventSlim(false);
         protected ConcurrentQueue<ThreadQueueItem> workQueue = new ConcurrentQueue<ThreadQueueItem>();
 
         public WorkQueueThread()
@@ -28,61 +38,49 @@ namespace SparkLib
         {
             while (!source.IsCancellationRequested)
             {
-                while (workQueue.Count != 0)
+
+                ThreadQueueItem workItem;
+                //Monitor.Enter(workQueue);
+                if (workQueue.TryDequeue(out workItem))
                 {
-                    ThreadQueueItem workItem;
-                    if (workQueue.TryDequeue(out workItem))
-                    {
-                        workItem.taskStatus = QueueItemStatus.InProgress;
-                        workItem.CallMethod();
-                        //workItem.Task.Invoke(workItem.Args!);
-                        workItem.taskStatus = QueueItemStatus.Complete;
-                    }
+                    workItem.taskStatus = QueueItemStatus.InProgress;
+                    workItem.Task();
+                    //workItem.Task.Invoke(workItem.Args!);
+                    workItem.taskStatus = QueueItemStatus.Complete;
                 }
-                threadSuspend.WaitOne();
+
+                if (workQueue.IsEmpty)
+                    re.Reset();
+                //Monitor.Exit(workQueue);
+                //threadSuspend.Reset();
+                //threadSuspend.WaitOne();
+                re.Wait();
             }
             return;
         }
 
         public void Stop()
         {
+            // Warning: there is no coming back from this.
             source.Cancel();
+            re.Set();
         }
 
-        // This is the preferred version to queue work with.
-        public ThreadQueueItem EnqueueWork(Object[] args, ThreadMethod task)
+        // If you have arguments, use this version
+        public ThreadQueueItem EnqueueWork(Action task)
         {
-            ThreadQueueItem newItem = new ThreadQueueItem(task, args);
+            ThreadQueueItem newItem = new ThreadQueueItem(task);
             workQueue.Enqueue(newItem);
-            if (workThread.ThreadState == ThreadState.WaitSleepJoin)
-            {
-                threadSuspend.Set();
-            }
-            return newItem;
-        }
-
-        public ThreadQueueItem EnqueueWork(ThreadMethod task, Object[]? args = null)
-        {
-            ThreadQueueItem newItem = new ThreadQueueItem(task, args);
-            workQueue.Enqueue(newItem);
-            if (workThread.ThreadState == ThreadState.WaitSleepJoin)
-            {
-                threadSuspend.Set();
-            }
+            re.Set();
             return newItem;
         }
 
         public class ThreadQueueItem
         {
-            private ThreadMethod task;
-            public ThreadMethod Task
+            private Action task;
+            public Action Task
             {
                 get => task;
-            }
-            private Object[] args;
-            public Object[] Args
-            {
-                get => args;
             }
             internal QueueItemStatus taskStatus = QueueItemStatus.NotStarted;
             public QueueItemStatus TaskStatus
@@ -90,15 +88,9 @@ namespace SparkLib
                 get => taskStatus;
             }
 
-            internal ThreadQueueItem(ThreadMethod method, Object[]? args = null)
+            internal ThreadQueueItem(Action method)
             {
                 this.task = method;
-                this.args = args ?? new Object[0];
-            }
-
-            public void CallMethod()
-            {
-                task(args);
             }
         }
         public enum QueueItemStatus { NotStarted, InProgress, Complete }
