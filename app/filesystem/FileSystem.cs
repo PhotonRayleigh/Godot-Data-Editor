@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using SparkLib;
 
 public class FileSystem : Panel
 {
@@ -26,6 +27,7 @@ public class FileSystem : Panel
     public string path = "user://";
     protected System.Collections.Generic.Dictionary<TreeItem, FSViewTree.Node> FSAssocList
         = new System.Collections.Generic.Dictionary<TreeItem, FSViewTree.Node>();
+    private WorkQueueThread workerThread = new WorkQueueThread();
     public override void _Ready()
     {
         FileSystemListNode = GetNode<Tree>("FileSystemScroll/FileSystemList");
@@ -44,8 +46,7 @@ public class FileSystem : Panel
 
     public FileSystem()
     {
-        myThread = new System.Threading.Thread(new System.Threading.ThreadStart(ThreadProc));
-        myThread.Start();
+
     }
 
     bool isUpdating = false;
@@ -281,54 +282,16 @@ public class FileSystem : Panel
     }
 
     bool FSCollapseRunning = false;
-
-    private delegate void ThreadTask(System.Object[] args);
-    private Queue<QueueItem> ThreadWorkQueue = new Queue<QueueItem>();
-
-    struct QueueItem
-    {
-        public ThreadTask proc;
-        public System.Object[] args;
-    }
-
-    private System.Threading.Thread myThread;
-    private bool alive = true;
-    // EventWaitHandle is the modern way to stop and start threads.
-    // Resume and Suspend are obsolete.
-    private EventWaitHandle ewh = new EventWaitHandle(false, EventResetMode.AutoReset);
-
-    private void ThreadProc()
-    {
-        while (alive)
-        {
-            while (ThreadWorkQueue.Count != 0)
-            {
-                QueueItem myTask = ThreadWorkQueue.Dequeue();
-                myTask.proc.Invoke(myTask.args);
-            }
-            ewh.WaitOne();
-        }
-    }
-
     protected void _OnFileSystemListItemCollapsed(TreeItem item)
     {
         if (!userEditable) return;
         if (FSCollapseRunning) return;
-        System.Object[] myArgs = new System.Object[] { item };
-        void myFunc(System.Object[] args)
-        {
-            GD.Print(args);
-            GD.Print(System.Threading.Thread.CurrentThread.ManagedThreadId);
-            RefreshOnCollapse((args[0] as TreeItem)!);
-        }
-        ThreadWorkQueue.Enqueue(new QueueItem() { proc = myFunc, args = myArgs });
-        if (!myThread.IsAlive)
-        {
-            ewh.Set();
-        }
+
+        workerThread.EnqueueWork(new System.Object[] { item },
+                                    (System.Object[] args) => RefreshOnCollapse((args[0] as TreeItem)!));
     }
 
-    public void RefreshOnCollapse(TreeItem item)
+    protected void RefreshOnCollapse(TreeItem item)
     {
 
         FSCollapseRunning = true;
@@ -358,10 +321,12 @@ public class FileSystem : Panel
     {
         if (isUpdating) return;
         if (userWorkingTree!.IsRefreshing) return;
-        Task.Run(() =>
-            {
-                userWorkingTree!.RefreshDirectories();
-                UpdateTree();
-            });
+        workerThread.EnqueueWork((System.Object[] args) => RefreshOnButtonPressed());
+    }
+
+    protected void RefreshOnButtonPressed()
+    {
+        userWorkingTree!.RefreshDirectories();
+        UpdateTree();
     }
 }
