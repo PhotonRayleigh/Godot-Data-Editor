@@ -103,6 +103,10 @@ public class FSViewTree
 
     public void ScanDirectory(DirNode scanNode)
     {
+        // Could also maybe use Task.ContinueWith()
+        // in this function, but I think it would just
+        // be wasteful in this context. 
+
         // Check that existing folders still exist
         Task iterateFolders = Task.Run(() =>
         {
@@ -129,6 +133,24 @@ public class FSViewTree
             {
                 scanNode.folders.Remove(i);
             }
+
+            //GD.Print("Entering iterateFolders 2");
+            DirectoryInfo[] directories = scanNode.thisDir.GetDirectories();
+            listCount = directories.GetLength(0);
+            for (int i = 0; i < listCount; i++)
+            {
+                //GD.Print($"iterateFolders i = {i}");
+                if (scanNode.folders.Exists((DirNode d) =>
+                {
+                    if (d.thisDir.FullName.Equals(directories[i].FullName)) return true;
+                    else return false;
+                })) continue;
+                else
+                {
+                    scanNode.folders.Add(new DirNode(directories[i], scanNode));
+                }
+            }
+            //GD.Print("Exiting iterateFolders 2");
         });
 
         // Check that existing files still exist
@@ -157,39 +179,10 @@ public class FSViewTree
             {
                 scanNode.files.Remove(i);
             }
-        });
 
-        DirectoryInfo[] directories = scanNode.thisDir.GetDirectories();
-        FileInfo[] files = scanNode.thisDir.GetFiles();
-        iterateFolders.Wait();
-        iterateFiles.Wait();
-
-        // Check for new folders
-        iterateFolders = Task.Run(() =>
-        {
-            //GD.Print("Entering iterateFolders 2");
-            int listCount = directories.GetLength(0);
-            for (int i = 0; i < listCount; i++)
-            {
-                //GD.Print($"iterateFolders i = {i}");
-                if (scanNode.folders.Exists((DirNode d) =>
-                {
-                    if (d.thisDir.FullName.Equals(directories[i].FullName)) return true;
-                    else return false;
-                })) continue;
-                else
-                {
-                    scanNode.folders.Add(new DirNode(directories[i], scanNode));
-                }
-            }
-            //GD.Print("Exiting iterateFolders 2");
-        });
-
-        // Check for new files
-        iterateFiles = Task.Run(() =>
-        {
+            FileInfo[] files = scanNode.thisDir.GetFiles();
             //GD.Print("Entering iterateFiles 2");
-            int listCount = files.GetLength(0);
+            listCount = files.GetLength(0);
             for (int i = 0; i < listCount; i++)
             {
                 //GD.Print($"iterateFiles i = {i}");
@@ -203,7 +196,6 @@ public class FSViewTree
                     scanNode.files.Add(new FileNode(files[i], scanNode));
                 }
             }
-            //GD.Print("Exiting iterateFiles 2");
         });
 
         iterateFolders.Wait();

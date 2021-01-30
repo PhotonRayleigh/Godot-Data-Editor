@@ -18,6 +18,7 @@ public class FileSystem : Panel
                 Enable de-select of entries when clicking on background
                 Resize context menu to fit entries
             Automatic refresh on filesystem changes (only when main window is back in focus)
+            Implement file/folder sorting.
     */
     protected bool userEditable = false;
     public FSViewTree? userWorkingTree;
