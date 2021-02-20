@@ -26,6 +26,10 @@ window/dpi/allow_hidpi=true
 window/vsync/use_vsync=false
 window/handheld/orientation="sensor_portrait"
 
+[editor_plugins]
+
+enabled=PoolStringArray( "MonoDebuggerQM" )
+
 [gui]
 
 theme/use_hidpi=true
@@ -48,6 +52,7 @@ mouse_right_click={
 [mono]
 
 profiler/enabled=true
+debugger_agent/wait_timeout=5000
 
 [rendering]
 

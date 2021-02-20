@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using SparkLib;
 
-public class FileSystem : Panel
+public partial class FileSystem : Panel
 {
     /*
         Custom FileSystem Control for Godot.
@@ -29,6 +29,8 @@ public class FileSystem : Panel
     protected System.Collections.Generic.Dictionary<TreeItem, FSViewTree.Node> FSAssocList
         = new System.Collections.Generic.Dictionary<TreeItem, FSViewTree.Node>();
     private WorkQueueThread workerThread = new WorkQueueThread();
+    private WorkQueueTask workerTask = new WorkQueueTask();
+
     public override void _Ready()
     {
         FileSystemListNode = GetNode<Tree>("FileSystemScroll/FileSystemList");
@@ -38,10 +40,13 @@ public class FileSystem : Panel
         FilePathNode.Text = userWorkingTree.userRootDir!.path;
         // This is a best example of how these classes should be used
         // Just run blocking operations in their own threads. 
-        workerThread.EnqueueWork(() =>
+        /*workerThread.EnqueueWork(() =>
         {
             RefreshFileSystem();
-        });
+        });*/
+
+        //workerTask.EnqueueWork(RefreshFileSystem);
+        Task.Run(RefreshFileSystem);
     }
 
     public FileSystem()
@@ -64,6 +69,8 @@ public class FileSystem : Panel
 
         userEditable = false;
         isUpdating = true;
+
+        userWorkingTree!.FSLock.WaitOne();
 
         FileSystemListNode!.Clear();
         FSAssocList.Clear();
@@ -125,7 +132,7 @@ public class FileSystem : Panel
         }
         userEditable = true;
         isUpdating = false;
-
+        userWorkingTree!.FSLock.ReleaseMutex();
         return;
     }
 
@@ -297,11 +304,8 @@ public class FileSystem : Panel
         FSCollapseRunning = true;
         userEditable = false;
 
-        workerThread.EnqueueWork(() =>
+        /*workerThread.EnqueueWork(() =>
         {
-            //Task.Run(() =>
-            //{
-            //GD.Print($"TreeItem, {item.GetText(0)}, collapsed!");
             FSViewTree.DirNode? fsNode = FSAssocList[item] as FSViewTree.DirNode;
             if (fsNode!.parent != null)
             {
@@ -317,17 +321,36 @@ public class FileSystem : Panel
                 UpdateTree();
             }
             FSCollapseRunning = false;
-            //});
+
+            return;
+        });*/
+        Task.Run(() =>
+        {
+            FSViewTree.DirNode? fsNode = FSAssocList[item] as FSViewTree.DirNode;
+            if (fsNode!.parent != null)
+            {
+                if (item.Collapsed == true)
+                {
+                    userWorkingTree!.CloseDirectory(fsNode);
+                }
+                else
+                {
+                    userWorkingTree!.OpenDirectory(fsNode);
+                }
+                userWorkingTree.RefreshDirectories();
+                UpdateTree();
+            }
+            FSCollapseRunning = false;
+
             return;
         });
-        //RefreshOnCollapse(item);
     }
 
     protected void _OnRefreshButtonPressed()
     {
         //if (isUpdating) return;
         //if (userWorkingTree!.IsRefreshing) return;
-        workerThread.EnqueueWork(() => RefreshFileSystem());
-        //RefreshOnButtonPressed();
+        //workerTask.EnqueueWork(() => RefreshFileSystem());
+        Task.Run(RefreshFileSystem);
     }
 }

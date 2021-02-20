@@ -61,6 +61,8 @@ public class FSViewTree
     public DirNode? userRootDir;
     public List<DirNode> userOpenDirs = new List<DirNode>();
 
+    internal System.Threading.Mutex FSLock = new System.Threading.Mutex();
+
     public FSViewTree()
     {
         userDataDir = OS.GetUserDataDir();
@@ -256,6 +258,7 @@ public class FSViewTree
     // While refreshing is happening, do not refresh again within the same FSViewTree.
     public void RefreshDirectories()
     {
+        FSLock.WaitOne();
         //if (isRefreshing) return;
         isRefreshing = true;
         //GD.Print("RefreshDirectories(): Entering function");
@@ -309,6 +312,7 @@ public class FSViewTree
         }
         //GD.Print("RefreshDirectories(): Exiting function");
         isRefreshing = false;
+        FSLock.ReleaseMutex();
         return;
     }
 
