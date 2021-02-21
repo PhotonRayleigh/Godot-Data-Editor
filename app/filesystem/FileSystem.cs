@@ -28,6 +28,10 @@ public partial class FileSystem : Panel
     public string path = "user://";
     protected System.Collections.Generic.Dictionary<TreeItem, FSViewTree.Node> FSAssocList
         = new System.Collections.Generic.Dictionary<TreeItem, FSViewTree.Node>();
+    public System.Collections.Generic.Dictionary<TreeItem, FSViewTree.Node> GetFSAssocList()
+    {
+        return FSAssocList;
+    }
     private WorkQueueThread workerThread = new WorkQueueThread();
     private WorkQueueTask workerTask = new WorkQueueTask();
 
