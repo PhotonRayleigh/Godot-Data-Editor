@@ -92,6 +92,7 @@ public partial class FileSystem : Panel
 
         while (scanning)
         {
+
             if (currentCounter[0] <= currentCounter[1])
             {
                 FSViewTree.DirNode currentFolder = workingDirNode.folders[currentCounter[0]];
@@ -101,7 +102,7 @@ public partial class FileSystem : Panel
                 if (currentFolder.isOpen) treeBuffer.Collapsed = false;
                 else treeBuffer.Collapsed = true;
 
-                if (currentFolder.folders.Count > 0)
+                if (currentFolder.folders.Count > 0 || currentFolder.files.Count > 0)
                 {
                     counters.Push(currentCounter);
                     treeItemStack.Push(workingTreeItem);
