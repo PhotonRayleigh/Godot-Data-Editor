@@ -57,7 +57,7 @@ public partial class FileSystem : Panel
     {
 
     }
-    protected void RefreshFileSystem()
+    internal void RefreshFileSystem()
     {
         //Task.Run(() =>
         //{

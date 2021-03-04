@@ -90,8 +90,7 @@ margin_bottom = -1.0
 
 [node name="MenuPanel" type="Panel" parent="SystemMenuHook"]
 anchor_right = 1.0
-margin_top = -0.840881
-margin_bottom = 24.1591
+margin_bottom = 25.0
 theme = ExtResource( 2 )
 script = ExtResource( 4 )
 __meta__ = {

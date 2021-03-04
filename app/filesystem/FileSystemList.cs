@@ -60,15 +60,6 @@ public class FileSystemList : Tree
         }*/
 
         fileSystem!.Move(dataArray, (fileSystem!.GetFSAssocList()[treeTarget] as FSViewTree.DirNode)!);
-    }
-
-    public class GodotBox<T> : Godot.Object
-    {
-        public T data;
-
-        public GodotBox(T data)
-        {
-            this.data = data;
-        }
+        fileSystem.RefreshFileSystem();
     }
 }
