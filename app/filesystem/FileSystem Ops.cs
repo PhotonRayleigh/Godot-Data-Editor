@@ -62,7 +62,7 @@ public partial class FileSystem : Panel
 
     public void SoftDelete()
     {
-        GD.PrintErr("Function FileSystem.SoftDelete called, which is not implemented yet")
+        GD.PrintErr("Function FileSystem.SoftDelete called, which is not implemented yet");
     }
 
     public void Move(FSViewTree.DirNode source, FSViewTree.DirNode dest)
