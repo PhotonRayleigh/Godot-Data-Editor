@@ -1,6 +1,8 @@
 using Godot;
 using Godot.Collections;
 using System;
+using System.Linq;
+using System.IO;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,6 +21,9 @@ public partial class FileSystem : Panel
             // if it does, increment name until no conflict
             // Create new directory
             // Recursively copy files and folders from old directory to new
+
+            // Only need to check naming conflicts for the top level folder, then it is just make
+            // the new folder and recursively copy everything into it.
         }
     }
 
@@ -26,6 +31,55 @@ public partial class FileSystem : Panel
     {
         // Copy source file into destination directory
         // If file name exists, increment until no conflict.
+
+        if (source.thisFile.Exists)
+        {
+            // Use Linq?
+            string destName = source.thisFile.Name;
+            int periodIndex = destName.LastIndexOf('.');
+            // TODO: Check if periodIndex is -1 and change the logic appropriately
+            string namePrefix = destName.Substring(0, periodIndex);
+            string nameSuffix = destName.Substring(periodIndex + 1);
+
+            var FolderHits = from dir in dest.folders
+                             where NameTest(namePrefix, nameSuffix, dir.thisDir.Name)
+                             select dir;
+            var FileHits = from file in dest.files
+                           where NameTest(namePrefix, nameSuffix, file.thisFile.Name)
+                           select file;
+
+            int totalHits = FolderHits.Count() + FileHits.Count();
+            string finalName = "";
+
+            if (totalHits > 0)
+            {
+                finalName = namePrefix + $" {totalHits}." + nameSuffix;
+            }
+            else
+            {
+                finalName = destName;
+            }
+
+            string sourceName = source.thisFile.Name;
+            source.thisFile.CopyTo(dest.path + "/" + finalName);
+        }
+
+        bool NameTest(string prefix, string suffix, string testName)
+        {
+            int periodIndex = testName.LastIndexOf('.');
+            string testPrefix = String.Empty;
+            string testSuffix = String.Empty;
+            if (periodIndex == -1)
+            {
+                testPrefix = testName.Substring(0);
+            }
+            else
+            {
+                testPrefix = testName.Substring(0, periodIndex);
+                testSuffix = testName.Substring(periodIndex + 1);
+            }
+            return prefix.Equals(testPrefix) && suffix.Equals(testSuffix);
+        }
     }
 
     public void HardDelete(FSViewTree.DirNode target)
@@ -80,38 +134,57 @@ public partial class FileSystem : Panel
     public void Move(List<FSViewTree.Node> source, FSViewTree.DirNode dest)
     {
         if (source.Count == 0) return;
-        foreach (FSViewTree.Node item in source)
+        try
         {
-            if (item is FSViewTree.DirNode)
+            foreach (FSViewTree.Node item in source)
             {
-                Move((item as FSViewTree.DirNode)!, dest);
-            }
-            else if (item is FSViewTree.FileNode)
-            {
-                Move((item as FSViewTree.FileNode)!, dest);
+                if (item is FSViewTree.DirNode)
+                {
+                    Move((item as FSViewTree.DirNode)!, dest);
+                }
+                else if (item is FSViewTree.FileNode)
+                {
+                    Move((item as FSViewTree.FileNode)!, dest);
+                }
             }
         }
+        catch (Exception e)
+        {
+            GD.PrintErr($"Warning: move of {source.ToString()} to {dest.path} failed");
+            GD.PrintErr($"Exception Text: {e.Message}");
+            GD.PrintErr("Stack Trace:\n" +
+                e.StackTrace);
+        }
+
+        RefreshFileSystem();
         return;
     }
 
     public void Move(Godot.Collections.Array<FSViewTree.Node> source, FSViewTree.DirNode dest)
     {
         if (source.Count == 0) return;
-        foreach (FSViewTree.Node item in source)
+        try
         {
-            if (item is FSViewTree.DirNode)
+            foreach (FSViewTree.Node item in source)
             {
-                // Access item.thisDir to move it
-                FSViewTree.DirNode temp = (item as FSViewTree.DirNode)!;
-                temp.thisDir.MoveTo($"{dest.path}/{temp.name}");
-            }
-            else if (item is FSViewTree.FileNode)
-            {
-                // Access item.thisFile to move it
-                FSViewTree.FileNode temp = (item as FSViewTree.FileNode)!;
-                temp.thisFile.MoveTo($"{dest.path}/{temp.name}");
+                if (item is FSViewTree.DirNode)
+                {
+                    Move((item as FSViewTree.DirNode)!, dest);
+                }
+                else if (item is FSViewTree.FileNode)
+                {
+                    Move((item as FSViewTree.FileNode)!, dest);
+                }
             }
         }
+        catch (Exception e)
+        {
+            GD.PrintErr($"Warning: move of {source.ToString()} to {dest.path} failed");
+            GD.PrintErr($"Exception Text: {e.Message}");
+            GD.PrintErr("Stack Trace:\n" +
+                e.StackTrace);
+        }
+
         RefreshFileSystem();
         return;
     }

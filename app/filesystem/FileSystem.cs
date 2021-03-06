@@ -35,6 +35,8 @@ public partial class FileSystem : Panel
     private WorkQueueThread workerThread = new WorkQueueThread();
     private WorkQueueTask workerTask = new WorkQueueTask();
 
+    protected FSViewTree.Node[] clipBoard = new FSViewTree.Node[0];
+
     public override void _Ready()
     {
         FileSystemListNode = GetNode<Tree>("FileSystemScroll/FileSystemList");
@@ -207,7 +209,8 @@ public partial class FileSystem : Panel
 
     public enum FileOperations
     {
-        NewFolder, NewFile, Rename, Delete, Move, Copy
+        NewFolder, NewFile, Rename, Delete, Move, Copy,
+        Paste
     }
 
     protected void PopulateContextMenu()
@@ -218,14 +221,16 @@ public partial class FileSystem : Panel
         List<FSViewTree.Node> selectedEntries = GetSelectedEntries();
         //bool containsFiles = false;
         //bool containsFolders = false;
+        int id = 0;
         if (selectedEntries.Count == 0)
         {
             // New file
             // New folder
-            ContextMenuNode.AddItem("New Folder...", 0);
-            contextMenuAssocList.Add(0, FileOperations.NewFolder);
-            ContextMenuNode.AddItem("New File...", 1);
-            contextMenuAssocList.Add(1, FileOperations.NewFile);
+            ContextMenuNode.AddItem("New Folder...", id);
+            contextMenuAssocList.Add(id, FileOperations.NewFolder);
+            id++;
+            ContextMenuNode.AddItem("New File...", id);
+            contextMenuAssocList.Add(id, FileOperations.NewFile);
         }
         else if (selectedEntries.Count == 1)
         {
@@ -233,39 +238,45 @@ public partial class FileSystem : Panel
             // New Folder
             // Rename
             // Delete
-            ContextMenuNode.AddItem("Rename");
-            contextMenuAssocList.Add(0, FileOperations.Rename);
-            ContextMenuNode.AddItem("Delete");
-            contextMenuAssocList.Add(1, FileOperations.Delete);
-            ContextMenuNode.AddItem("New Folder...");
-            contextMenuAssocList.Add(2, FileOperations.NewFolder);
-            ContextMenuNode.AddItem("New File...");
-            contextMenuAssocList.Add(3, FileOperations.NewFile);
+            ContextMenuNode.AddItem("Copy", id);
+            contextMenuAssocList.Add(id, FileOperations.Copy);
+            id++;
+            if (clipBoard.Length > 0 && selectedEntries[0] is FSViewTree.DirNode)
+            {
+                if (clipBoard.Length > 1) ContextMenuNode.AddItem("Paste Items", id);
+                else ContextMenuNode.AddItem("Paste", id);
+                contextMenuAssocList.Add(id, FileOperations.Paste);
+                id++;
+            }
+            ContextMenuNode.AddItem("Rename", id);
+            contextMenuAssocList.Add(id, FileOperations.Rename);
+            id++;
+            ContextMenuNode.AddItem("Delete", id);
+            contextMenuAssocList.Add(id, FileOperations.Delete);
+            id++;
+            ContextMenuNode.AddItem("New Folder...", id);
+            contextMenuAssocList.Add(id, FileOperations.NewFolder);
+            id++;
+            ContextMenuNode.AddItem("New File...", id);
+            contextMenuAssocList.Add(id, FileOperations.NewFile);
         }
         else
         {
-            // Delete
-            ContextMenuNode.AddItem("Delete Items");
-            contextMenuAssocList.Add(0, FileOperations.Delete);
+            ContextMenuNode.AddItem("Copy Items", id);
+            contextMenuAssocList.Add(id, FileOperations.Copy);
+            id++;
+            // Maybe make a default case later where paste defaults to the root space
             /*
-            foreach (FSViewTree.Node node in selectedEntries)
+            if (clipBoard.Length > 0)
             {
-                if (node.type == FSViewTree.NodeType.file) containsFiles = true;
-                else if (node.type == FSViewTree.NodeType.folder) containsFolders = true;
-            }
-            if (containsFiles && !containsFolders)
-            {
-                // Delete
-            }
-            else if (!containsFiles && containsFolders)
-            {
-                // Delete
-            }
-            else
-            {
-                // Delete
+                if (clipBoard.Length > 1) ContextMenuNode.AddItem("Paste Items", id);
+                else ContextMenuNode.AddItem("Paste", id);
+                contextMenuAssocList.Add(id, FileOperations.Paste);
+                id++;
             }
             */
+            ContextMenuNode.AddItem("Delete Items", id);
+            contextMenuAssocList.Add(id, FileOperations.Delete);
         }
     }
 
@@ -296,6 +307,56 @@ public partial class FileSystem : Panel
         return selectedEntries;
     }
 
+    protected void _OnContextMenuIDPressed(int id)
+    {
+        FileOperations selectedOp = contextMenuAssocList[id];
+        List<FSViewTree.Node> selection = GetSelectedEntries(); // TODO: Save wasted work by only updating selection when needed
+        switch (selectedOp)
+        {
+            case (FileOperations.Copy):
+                clipBoard = selection.ToArray();
+                break;
+            case (FileOperations.Paste):
+                foreach (FSViewTree.Node item in clipBoard)
+                {
+                    if (item is FSViewTree.DirNode)
+                    {
+                        Copy(item as FSViewTree.DirNode, selection[0] as FSViewTree.DirNode); // TODO: make it not dangerous
+                    }
+                    else if (item is FSViewTree.FileNode)
+                    {
+                        Copy(item as FSViewTree.FileNode, selection[0] as FSViewTree.DirNode);
+                    }
+                }
+                break;
+            case (FileOperations.Move):
+                break;
+            case (FileOperations.Rename):
+                break;
+            case (FileOperations.Delete):
+                foreach (FSViewTree.Node item in selection)
+                {
+                    // TODO: Add prompt and implement SoftDelete!
+                    if (item.type == FSViewTree.NodeType.folder)
+                    {
+                        HardDelete(item as FSViewTree.DirNode);
+                    }
+                    else if (item.type == FSViewTree.NodeType.file)
+                    {
+                        HardDelete(item as FSViewTree.FileNode);
+                    }
+                }
+                break;
+            case (FileOperations.NewFile):
+                break;
+            case (FileOperations.NewFolder):
+                break;
+            default:
+                break;
+        }
+        RefreshFileSystem();
+    }
+
     protected void _OnContextMenuPopupHide()
     {
 
@@ -305,7 +366,7 @@ public partial class FileSystem : Panel
     protected void _OnFileSystemListItemCollapsed(TreeItem item)
     {
         if (!userEditable) return; // This is important because the signal is fired when the tree is being built.
-        //if (FSCollapseRunning) return;
+                                   //if (FSCollapseRunning) return;
         FSCollapseRunning = true;
         userEditable = false;
 
