@@ -26,14 +26,19 @@ public partial class FileSystem : Panel
     protected PopupMenu? ContextMenuNode;
     protected LineEdit? FilePathNode;
     public string path = "user://";
-    protected System.Collections.Generic.Dictionary<TreeItem, FSViewTree.Node> FSAssocList
-        = new System.Collections.Generic.Dictionary<TreeItem, FSViewTree.Node>();
+    protected System.Collections.Generic.Dictionary<TreeItem, FSViewTree.Node> FSAssocList = new();
+
+    class MyClass1
+    {
+        public int i;
+    }
+
     public System.Collections.Generic.Dictionary<TreeItem, FSViewTree.Node> GetFSAssocList()
     {
         return FSAssocList;
     }
-    private WorkQueueThread workerThread = new WorkQueueThread();
-    private WorkQueueTask workerTask = new WorkQueueTask();
+    private WorkQueueThread workerThread = new();
+    private WorkQueueTask workerTask = new();
 
     protected FSViewTree.Node[] clipBoard = new FSViewTree.Node[0];
 
@@ -87,8 +92,8 @@ public partial class FileSystem : Panel
 
         TreeItem workingTreeItem = treeRoot;
         FSViewTree.DirNode workingDirNode = userWorkingTree.userRootDir;
-        Stack<int[]> counters = new Stack<int[]>();
-        Stack<TreeItem> treeItemStack = new Stack<TreeItem>();
+        Stack<int[]> counters = new();
+        Stack<TreeItem> treeItemStack = new();
         int[] currentCounter = { 0, workingDirNode.folders.Count - 1, 0 }; // [0] = current index, [1] = final index, [2] = files processed
         bool scanning = true;
 
@@ -182,7 +187,7 @@ public partial class FileSystem : Panel
         Vector2 view = GetViewport().GetVisibleRect().Size;
         Vector2 mousePos = globalPosition;
         Vector2 contextSize = ContextMenuNode!.RectSize;
-        Vector2 contextPos = new Vector2(mousePos);
+        Vector2 contextPos = new(mousePos);
         if (mousePos.x + contextSize.x > view.x)
         {
             contextPos.x = view.x - contextSize.x;
@@ -204,8 +209,7 @@ public partial class FileSystem : Panel
         ContextMenuNode!.GrabFocus();
     }
 
-    protected System.Collections.Generic.Dictionary<int, FileOperations> contextMenuAssocList =
-        new System.Collections.Generic.Dictionary<int, FileOperations>();
+    protected System.Collections.Generic.Dictionary<int, FileOperations> contextMenuAssocList = new();
 
     public enum FileOperations
     {
@@ -282,9 +286,9 @@ public partial class FileSystem : Panel
 
     public List<FSViewTree.Node> GetSelectedEntries()
     {
-        List<FSViewTree.Node> selectedEntries = new List<FSViewTree.Node>();
+        List<FSViewTree.Node> selectedEntries = new();
         TreeItem? nextSelected = null;
-        List<TreeItem> selectedTreeItems = new List<TreeItem>();
+        List<TreeItem> selectedTreeItems = new();
         bool continueScan = true;
         while (continueScan)
         {

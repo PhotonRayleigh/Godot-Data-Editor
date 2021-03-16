@@ -25,6 +25,9 @@ config/icon="res://icon.png"
 window/dpi/allow_hidpi=true
 window/vsync/use_vsync=false
 window/handheld/orientation="sensor_portrait"
+window/tablet_driver.Android="winink"
+window/tablet_driver.iOS="winink"
+window/tablet_driver.pc="winink"
 
 [editor_plugins]
 
@@ -33,7 +36,7 @@ enabled=PoolStringArray( "MonoDebuggerQM" )
 [gui]
 
 theme/use_hidpi=true
-theme/custom="res://resources/themes/Base_Theme.tres"
+theme/custom="res://resources/themes/Gray_Editor_Theme.tres"
 theme/custom_font="res://resources/fonts/Roboto_Regular 17.tres"
 
 [input]
