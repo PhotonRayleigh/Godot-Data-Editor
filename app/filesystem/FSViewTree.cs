@@ -16,6 +16,25 @@ public class FSViewTree
 
         So, instead, I will make the class thread friendly, and if the calling objects need
         the functions to happen in threads, the calling object can handle that.
+
+        Update 4/12/2021:
+        Looked into async/await more. I don't really like how it works, but it does a good job of
+        identifying what methods are intended to be run in separate threads.
+
+        I refactored my code to use async for functions that are intended to be run threaded.
+
+        The basic contract for the execution of methods in this class is as follows:
+        1) Certain functions must be guartenteed to only have one instance running at a time.
+            This is controlled by a mutex and some state variables.
+        2) Certain functions must run in a separate thread (asynchronously) since they include
+            long-running logic and blocking I/O operations. Those functions are telegraphed
+            with the async keyword. Blocking activity inside these functions are run in a
+            Task that is awaited. All state and thread checking logic is outside of the task,
+            so new threads are not spawned until the function is allowed to proceed.
+
+        I'm not sure if I want to reconfigure this class to use a dedicated thread or not.
+        Async seems like a good model for it, so I'll stick with it for now.
+        If in the future it is advantagous to switch to a model, I can do so without too much fuss.
     */
 
     /*
@@ -99,11 +118,11 @@ public class FSViewTree
         userRootDir.isOpen = true;
 
         // Crawl the root directory
-        ScanDirectory(userRootDir);
+        ScanDirectory(userRootDir).Wait();
     }
 
 
-    public void ScanDirectory(DirNode scanNode)
+    public async Task ScanDirectory(DirNode scanNode)
     {
         // Could also maybe use Task.ContinueWith()
         // in this function, but I think it would just
@@ -200,15 +219,15 @@ public class FSViewTree
             }
         });
 
-        iterateFolders.Wait();
-        iterateFiles.Wait();
+        await iterateFolders;
+        await iterateFiles;
         return;
     }
 
     public void OpenDirectory(DirNode openNode)
     {
         openNode.isOpen = true;
-        ScanDirectory(openNode);
+        ScanDirectory(openNode).Wait();
         return;
     }
 
@@ -274,7 +293,7 @@ public class FSViewTree
         }
 
         bool scanning = true;
-        ScanDirectory(userRootDir);
+        ScanDirectory(userRootDir).Wait();
         Stack<IterationInfo> itrStack = new Stack<IterationInfo>();
         IterationInfo currentItr = new IterationInfo() { Count = userRootDir.folders.Count };
         DirNode currentDir = userRootDir;
@@ -285,7 +304,7 @@ public class FSViewTree
             if ((currentItr.currentIndex < currentItr.Count) && currentDir.isOpen)
             {
                 DirNode checkFolder = currentDir.folders[currentItr.currentIndex];
-                ScanDirectory(checkFolder);
+                ScanDirectory(checkFolder).Wait();
                 if (checkFolder.folders.Count > 0)
                 {
                     //currentItr.currentIndex++;
@@ -310,6 +329,69 @@ public class FSViewTree
 
             currentItr.currentIndex++;
         }
+        //GD.Print("RefreshDirectories(): Exiting function");
+        isRefreshing = false;
+        FSLock.ReleaseMutex();
+        return;
+    }
+
+    public async Task RefreshDirectoriesAsync()
+    {
+        FSLock.WaitOne();
+        //if (isRefreshing) return;
+        isRefreshing = true;
+        await Task.Run(async () =>
+        {
+            //GD.Print("RefreshDirectories(): Entering function");
+            if (userRootDir == null)
+            {
+                GD.PrintErr("FSViewTree.RefreshDirectories(): Error, root directory is not set.");
+                return;
+            }
+            if (!userRootDir.thisDir.Exists)
+            {
+                GD.PrintErr("FSViewTree.RefreshDirectories(): Error, root directory does not exist.");
+                return;
+            }
+
+            bool scanning = true;
+            await ScanDirectory(userRootDir);
+            Stack<IterationInfo> itrStack = new Stack<IterationInfo>();
+            IterationInfo currentItr = new IterationInfo() { Count = userRootDir.folders.Count };
+            DirNode currentDir = userRootDir;
+
+            while (scanning)
+            {
+                //GD.Print($"Current directory is: {currentDir.path} on iteration {currentItr.currentIndex} out of {currentItr.FinalIndex}");
+                if ((currentItr.currentIndex < currentItr.Count) && currentDir.isOpen)
+                {
+                    DirNode checkFolder = currentDir.folders[currentItr.currentIndex];
+                    await ScanDirectory(checkFolder);
+                    if (checkFolder.folders.Count > 0)
+                    {
+                        //currentItr.currentIndex++;
+                        itrStack.Push(currentItr);
+                        currentDir = checkFolder;
+                        currentItr = new IterationInfo() { Count = currentDir.folders.Count };
+
+                        continue;
+                    }
+                }
+
+                if (currentItr.currentIndex >= currentItr.FinalIndex && currentDir.parent != null)
+                {
+                    currentItr = itrStack.Pop();
+
+                    currentDir = currentDir.parent;
+                }
+                else if (currentItr.currentIndex >= currentItr.FinalIndex && currentDir.parent == null)
+                {
+                    scanning = false;
+                }
+
+                currentItr.currentIndex++;
+            }
+        });
         //GD.Print("RefreshDirectories(): Exiting function");
         isRefreshing = false;
         FSLock.ReleaseMutex();
