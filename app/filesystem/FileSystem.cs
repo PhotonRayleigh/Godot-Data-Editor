@@ -404,11 +404,11 @@ public partial class FileSystem : Panel
             {
                 if (item.Collapsed == true)
                 {
-                    userWorkingTree!.CloseDirectory(fsNode);
+                    await userWorkingTree!.CloseDirectory(fsNode);
                 }
                 else
                 {
-                    userWorkingTree!.OpenDirectory(fsNode);
+                    await userWorkingTree!.OpenDirectory(fsNode);
                 }
                 await userWorkingTree.RefreshDirectoriesAsync();
                 await UpdateTree();
