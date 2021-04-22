@@ -118,7 +118,7 @@ public class FSViewTree
         userRootDir.isOpen = true;
 
         // Crawl the root directory
-        ScanDirectory(userRootDir).Wait();
+        var t = ScanDirectory(userRootDir);
     }
 
 
@@ -157,10 +157,10 @@ public class FSViewTree
 
             //GD.Print("Entering iterateFolders 2");
             DirectoryInfo[] directories = scanNode.thisDir.GetDirectories();
-            listCount = directories.GetLength(0);
+            listCount = directories.Length;
             for (int i = 0; i < listCount; i++)
             {
-                //GD.Print($"iterateFolders i = {i}");
+                GD.Print($"iterateFolders i = {i}");
                 if (scanNode.folders.Exists((DirNode d) =>
                 {
                     if (d.thisDir.FullName.Equals(directories[i].FullName)) return true;
@@ -173,6 +173,8 @@ public class FSViewTree
             }
             //GD.Print("Exiting iterateFolders 2");
         });
+
+        await iterateFolders;
 
         // Check that existing files still exist
         Task iterateFiles = Task.Run(() =>

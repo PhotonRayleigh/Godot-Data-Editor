@@ -1,10 +1,9 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=8 format=2]
 
-[ext_resource path="res://app/jsoninspector/JSONInspector.cs" type="Script" id=1]
 [ext_resource path="res://library/custom controls/DataTable.tscn" type="PackedScene" id=2]
-[ext_resource path="res://resources/themes/Base_Theme.tres" type="Theme" id=3]
-[ext_resource path="res://resources/fonts/Roboto_Regular 12.tres" type="DynamicFont" id=4]
-[ext_resource path="res://app/filesystem/FileSystem.tscn" type="PackedScene" id=5]
+[ext_resource path="res://resources/fonts/Roboto_Regular 12.tres" type="DynamicFont" id=3]
+[ext_resource path="res://app/jsoninspector/JSONInspector.cs" type="Script" id=4]
+[ext_resource path="res://resources/themes/Base_Theme.tres" type="Theme" id=5]
 
 [sub_resource type="StyleBoxFlat" id=1]
 bg_color = Color( 0.261832, 0.278589, 0.289063, 1 )
@@ -22,7 +21,7 @@ border_color = Color( 0.254902, 0.360784, 0.447059, 1 )
 anchor_right = 1.0
 anchor_bottom = 1.0
 rect_min_size = Vector2( 1024, 500 )
-script = ExtResource( 1 )
+script = ExtResource( 4 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -34,7 +33,7 @@ anchor_right = 0.409798
 anchor_bottom = 0.981667
 size_flags_horizontal = 3
 size_flags_vertical = 3
-custom_fonts/font = ExtResource( 4 )
+custom_fonts/font = ExtResource( 3 )
 tab_align = 0
 __meta__ = {
 "_edit_use_anchors_": true
@@ -50,9 +49,6 @@ margin_bottom = -5.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
-
-[node name="FileSystem" parent="LeftTabSet" instance=ExtResource( 5 )]
-visible = false
 
 [node name="CenterControls" type="VBoxContainer" parent="."]
 anchor_left = 0.416016
@@ -160,7 +156,7 @@ anchor_right = 0.992188
 anchor_bottom = 0.981667
 size_flags_horizontal = 3
 size_flags_vertical = 3
-custom_fonts/font = ExtResource( 4 )
+custom_fonts/font = ExtResource( 3 )
 tab_align = 0
 __meta__ = {
 "_edit_use_anchors_": true
@@ -210,7 +206,7 @@ margin_left = -250.5
 margin_top = -169.5
 margin_right = 250.5
 margin_bottom = 169.5
-theme = ExtResource( 3 )
+theme = ExtResource( 5 )
 window_title = "Open a File"
 mode = 0
 access = 1

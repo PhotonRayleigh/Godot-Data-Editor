@@ -21,9 +21,9 @@ namespace SparkLib
     {
         protected Thread workThread;
         protected CancellationTokenSource source = new CancellationTokenSource(); // Saw this somewhere, not sure why they used it.
-                                                                                  // Using it here to remind myself to look into it.
-                                                                                  //protected EventWaitHandle threadSuspend = new EventWaitHandle(false, EventResetMode.ManualReset);
-                                                                                  //protected EventWaitHandle threadSuspend = new EventWaitHandle(false, EventResetMode.ManualReset);
+        // Using it here to remind myself to look into it.
+        //protected EventWaitHandle threadSuspend = new EventWaitHandle(false, EventResetMode.ManualReset);
+        //protected EventWaitHandle threadSuspend = new EventWaitHandle(false, EventResetMode.ManualReset);
         protected ManualResetEventSlim re = new ManualResetEventSlim(false);
         protected ConcurrentQueue<ThreadQueueItem> workQueue = new ConcurrentQueue<ThreadQueueItem>();
 

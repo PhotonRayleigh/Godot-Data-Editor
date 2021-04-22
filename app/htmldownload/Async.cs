@@ -10,7 +10,7 @@ using System.Linq;
 public class SomeService
 {
     // ValueTask is a struct, not an object, so it avoids heap allocation
-    public async ValueTask<int> GetValueAsync(int numberToAdd) // Can return ValueTask<int> instead of Task<int>
+    public async Task<int> GetValueAsync(int numberToAdd) // Can return ValueTask<int> instead of Task<int>
     {
         // Doesn't waste a ThreadPool Thread, returns a Task object
         //return await Task.FromResult(numberToAdd * 2);
@@ -19,7 +19,7 @@ public class SomeService
         // return await Task.Run(() => numberToAdd * 2); 
 
         // Returns a ValueTask, which is a struct so it is created and passed by value
-        return await new ValueTask<int>(numberToAdd * 2);
+        return await new Task<int>(() => numberToAdd * 2);
     }
 
     public async Task<int> GetValueAsync()
