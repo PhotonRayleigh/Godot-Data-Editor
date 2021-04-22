@@ -224,24 +224,21 @@ public class FSViewTree
         return;
     }
 
-    public async Task OpenDirectory(DirNode openNode)
+    public void OpenDirectory(DirNode openNode)
     {
         openNode.isOpen = true;
-        await ScanDirectory(openNode);
+        ScanDirectory(openNode).Wait();
         return;
     }
 
-    public async Task CloseDirectory(DirNode closeNode)
+    public void CloseDirectory(DirNode closeNode)
     {
         closeNode.isOpen = false;
-        await Task.Run(() =>
+        foreach (DirNode subNode in closeNode.folders)
         {
-            foreach (DirNode subNode in closeNode.folders)
-            {
-                subNode.folders.Clear();
-                subNode.files.Clear();
-            }
-        });
+            subNode.folders.Clear();
+            subNode.files.Clear();
+        }
         return;
     }
 
