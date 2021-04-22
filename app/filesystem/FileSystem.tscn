@@ -133,7 +133,6 @@ __meta__ = {
 margin_right = 138.0
 margin_bottom = 16.0
 script = SubResource( 2 )
-
 [connection signal="pressed" from="HBoxContainer/RefreshButton" to="." method="_OnRefreshButtonPressed"]
 [connection signal="gui_input" from="FileSystemScroll/FileSystemList" to="." method="_OnFileSystemListGuiInput"]
 [connection signal="item_collapsed" from="FileSystemScroll/FileSystemList" to="." method="_OnFileSystemListItemCollapsed"]

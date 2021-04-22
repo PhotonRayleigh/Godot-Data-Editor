@@ -349,7 +349,7 @@ public class DataTable : Panel, IDataParser
         int col = 0;
         foreach (KeyValuePair<T, U[]> item in data)
         {
-            SetColumnTitle(item.Key.ToString(), col);
+            SetColumnTitle(item!.Key!.ToString(), col);
             Node ColNode = ColumnsNode!.GetChild(BASECOLUMNIDX + col);
             int row = 1;
             foreach (object? obj in item.Value)

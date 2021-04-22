@@ -1,9 +1,9 @@
-<Project Sdk="Godot.NET.Sdk/3.3.0">
+<Project Sdk="Godot.NET.Sdk/3.2.3">
   <PropertyGroup>
     <!--<TargetFramework>net472</TargetFramework>-->
     <TargetFramework>netstandard2.1</TargetFramework>
     <RootNamespace>SparkLab</RootNamespace>
-    <Nullable>Annotations</Nullable>
+    <Nullable>Enable</Nullable>
     <LangVersion>9.0</LangVersion>
   </PropertyGroup>
   <ItemGroup>

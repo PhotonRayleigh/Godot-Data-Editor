@@ -241,7 +241,6 @@ text = "Refresh View Tree"
 __meta__ = {
 "_edit_use_anchors_": false
 }
-
 [connection signal="pressed" from="CenterControls/ConvertToJson" to="." method="_OnConvertToJsonPressed"]
 [connection signal="pressed" from="CenterControls/ClearText" to="." method="_OnClearTextPressed"]
 [connection signal="pressed" from="CenterControls/SaveToFile" to="." method="_OnSaveToFilePressed"]
