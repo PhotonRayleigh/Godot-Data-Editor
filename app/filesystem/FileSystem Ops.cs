@@ -156,7 +156,7 @@ public partial class FileSystem : Panel
                 e.StackTrace);
         }
 
-        var t = RefreshFileSystem();
+        RefreshFileSystem();
         return;
     }
 
@@ -185,7 +185,7 @@ public partial class FileSystem : Panel
                 e.StackTrace);
         }
 
-        var t = RefreshFileSystem();
+        RefreshFileSystem();
         return;
     }
 

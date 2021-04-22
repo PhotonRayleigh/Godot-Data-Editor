@@ -64,17 +64,17 @@ public partial class FileSystem : Panel
     {
 
     }
-    internal async Task RefreshFileSystem()
+    internal void RefreshFileSystem()
     {
         //Task.Run(() =>
         //{
-        await userWorkingTree!.RefreshDirectoriesAsync();
-        await UpdateTree();
+        userWorkingTree!.RefreshDirectories();
+        UpdateTree();
         //});
     }
 
     bool isUpdating = false;
-    public async Task UpdateTree()
+    public void UpdateTree()
     {
         //if (isUpdating) return;
 
@@ -82,69 +82,66 @@ public partial class FileSystem : Panel
         isUpdating = true;
 
         userWorkingTree!.FSLock.WaitOne();
-        await Task.Run(() =>
+
+        FileSystemListNode!.Clear();
+        FSAssocList.Clear();
+        TreeItem treeRoot;
+        treeRoot = FileSystemListNode.CreateItem();
+        treeRoot.SetText(0, userWorkingTree!.userRootDir!.name + "/");
+        FSAssocList.Add(treeRoot, userWorkingTree.userRootDir);
+
+        TreeItem workingTreeItem = treeRoot;
+        FSViewTree.DirNode workingDirNode = userWorkingTree.userRootDir;
+        Stack<int[]> counters = new();
+        Stack<TreeItem> treeItemStack = new();
+        int[] currentCounter = { 0, workingDirNode.folders.Count - 1, 0 }; // [0] = current index, [1] = final index, [2] = files processed
+        bool scanning = true;
+
+        while (scanning)
         {
-            FileSystemListNode!.Clear();
-            FSAssocList.Clear();
-            TreeItem treeRoot;
-            treeRoot = FileSystemListNode.CreateItem();
-            treeRoot.SetText(0, userWorkingTree!.userRootDir!.name + "/");
-            FSAssocList.Add(treeRoot, userWorkingTree.userRootDir);
 
-            TreeItem workingTreeItem = treeRoot;
-            FSViewTree.DirNode workingDirNode = userWorkingTree.userRootDir;
-            Stack<int[]> counters = new();
-            Stack<TreeItem> treeItemStack = new();
-            int[] currentCounter = { 0, workingDirNode.folders.Count - 1, 0 }; // [0] = current index, [1] = final index, [2] = files processed
-            bool scanning = true;
-
-            while (scanning)
+            if (currentCounter[0] <= currentCounter[1])
             {
+                FSViewTree.DirNode currentFolder = workingDirNode.folders[currentCounter[0]];
+                TreeItem treeBuffer = FileSystemListNode.CreateItem(workingTreeItem);
+                treeBuffer.SetText(0, currentFolder.name + "/");
+                FSAssocList.Add(treeBuffer, currentFolder);
+                if (currentFolder.isOpen) treeBuffer.Collapsed = false;
+                else treeBuffer.Collapsed = true;
 
-                if (currentCounter[0] <= currentCounter[1])
+                if (currentFolder.folders.Count > 0 || currentFolder.files.Count > 0)
                 {
-                    FSViewTree.DirNode currentFolder = workingDirNode.folders[currentCounter[0]];
-                    TreeItem treeBuffer = FileSystemListNode.CreateItem(workingTreeItem);
-                    treeBuffer.SetText(0, currentFolder.name + "/");
-                    FSAssocList.Add(treeBuffer, currentFolder);
-                    if (currentFolder.isOpen) treeBuffer.Collapsed = false;
-                    else treeBuffer.Collapsed = true;
-
-                    if (currentFolder.folders.Count > 0 || currentFolder.files.Count > 0)
-                    {
-                        counters.Push(currentCounter);
-                        treeItemStack.Push(workingTreeItem);
-                        workingTreeItem = treeBuffer;
-                        workingDirNode = currentFolder;
-                        currentCounter = new int[] { 0, workingDirNode.folders.Count - 1 };
-                        continue;
-                    }
+                    counters.Push(currentCounter);
+                    treeItemStack.Push(workingTreeItem);
+                    workingTreeItem = treeBuffer;
+                    workingDirNode = currentFolder;
+                    currentCounter = new int[] { 0, workingDirNode.folders.Count - 1 };
+                    continue;
                 }
-
-                if (currentCounter[0] >= currentCounter[1])
-                {
-                    foreach (FSViewTree.FileNode file in workingDirNode.files)
-                    {
-                        TreeItem treeBuffer = FileSystemListNode.CreateItem(workingTreeItem);
-                        treeBuffer.SetText(0, file.name);
-                        FSAssocList.Add(treeBuffer, file);
-                    }
-                }
-
-                if ((currentCounter[0] >= currentCounter[1]) && workingDirNode.parent == null)
-                {
-                    scanning = false;
-                }
-                else if ((currentCounter[0] >= currentCounter[1]) && workingDirNode.parent != null)
-                {
-                    currentCounter = counters.Pop();
-                    workingDirNode = workingDirNode.parent;
-                    workingTreeItem = treeItemStack.Pop();
-                }
-                currentCounter[0]++;
             }
-        });
 
+            if (currentCounter[0] >= currentCounter[1])
+            {
+                foreach (FSViewTree.FileNode file in workingDirNode.files)
+                {
+                    TreeItem treeBuffer = FileSystemListNode.CreateItem(workingTreeItem);
+                    treeBuffer.SetText(0, file.name);
+                    FSAssocList.Add(treeBuffer, file);
+                }
+            }
+
+            if ((currentCounter[0] >= currentCounter[1]) && workingDirNode.parent == null)
+            {
+                scanning = false;
+            }
+            else if ((currentCounter[0] >= currentCounter[1]) && workingDirNode.parent != null)
+            {
+                currentCounter = counters.Pop();
+                workingDirNode = workingDirNode.parent;
+                workingTreeItem = treeItemStack.Pop();
+            }
+            currentCounter[0]++;
+        }
         userEditable = true;
         isUpdating = false;
         userWorkingTree!.FSLock.ReleaseMutex();
@@ -361,7 +358,7 @@ public partial class FileSystem : Panel
             default:
                 break;
         }
-        var t = RefreshFileSystem();
+        RefreshFileSystem();
     }
 
     protected void _OnContextMenuPopupHide()
@@ -397,7 +394,7 @@ public partial class FileSystem : Panel
 
             return;
         });*/
-        Task.Run(async () =>
+        Task.Run(() =>
         {
             FSViewTree.DirNode? fsNode = FSAssocList[item] as FSViewTree.DirNode;
             if (fsNode!.parent != null)
@@ -410,8 +407,8 @@ public partial class FileSystem : Panel
                 {
                     userWorkingTree!.OpenDirectory(fsNode);
                 }
-                await userWorkingTree.RefreshDirectoriesAsync();
-                await UpdateTree();
+                userWorkingTree.RefreshDirectories();
+                UpdateTree();
             }
             FSCollapseRunning = false;
 
@@ -424,6 +421,6 @@ public partial class FileSystem : Panel
         //if (isUpdating) return;
         //if (userWorkingTree!.IsRefreshing) return;
         //workerTask.EnqueueWork(() => RefreshFileSystem());
-        var t = RefreshFileSystem();
+        Task.Run(RefreshFileSystem);
     }
 }
