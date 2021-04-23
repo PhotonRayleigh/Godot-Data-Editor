@@ -18,6 +18,11 @@ public class FSViewTree
         the functions to happen in threads, the calling object can handle that.
     */
 
+    // 4/22/2021 - Reverted back to before I switched threading model to async.
+    // I really don't know what happened, but something changed where the async version
+    // just stopped working. Going to stay away from async/await for the time being.
+    // Outside of where it makes sense in existing API's at least.
+
     /*
         FSViewTree:
         Godot doesn't include conversion of paths, it only uses forward slash notation.
