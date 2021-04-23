@@ -42,17 +42,12 @@ public partial class FileSystem : Panel
 
     protected FSViewTree.Node[] clipBoard = new FSViewTree.Node[0];
 
-    // Warning, after a lot of painful troubleshooting,
-    // I discovered if you try to wait for async methods inside
-    // _Ready() without marking ready async, Godot will hang. 
-    public override async void _Ready()
+    public override void _Ready()
     {
-        GD.Print("Entering _Ready() of FileSystem.cs");
         FileSystemListNode = GetNode<Tree>("FileSystemScroll/FileSystemList");
         ContextMenuNode = GetNode<PopupMenu>("ContextMenu");
         FilePathNode = GetNode<LineEdit>("HBoxContainer/FilePath");
         userWorkingTree = new FSViewTree(path);
-        await userWorkingTree.setRootDirectoryTask;
         FilePathNode.Text = userWorkingTree.userRootDir!.path;
         // This is a best example of how these classes should be used
         // Just run blocking operations in their own threads. 
@@ -62,12 +57,12 @@ public partial class FileSystem : Panel
         });*/
 
         //workerTask.EnqueueWork(RefreshFileSystem);
-        await RefreshFileSystem();
+        Task.Run(RefreshFileSystem);
     }
 
     public FileSystem()
     {
-        GD.Print("FileSystem object created");
+
     }
     internal async Task RefreshFileSystem()
     {
