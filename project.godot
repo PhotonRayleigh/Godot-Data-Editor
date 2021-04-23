@@ -10,7 +10,6 @@ config_version=4
 
 _global_script_classes=[  ]
 _global_script_class_icons={
-
 }
 
 [application]
@@ -55,7 +54,6 @@ mouse_right_click={
 [mono]
 
 profiler/enabled=true
-debugger_agent/wait_for_debugger=true
 debugger_agent/wait_timeout=5000
 
 [rendering]

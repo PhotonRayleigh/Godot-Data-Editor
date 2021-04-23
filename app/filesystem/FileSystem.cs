@@ -57,7 +57,7 @@ public partial class FileSystem : Panel
         });*/
 
         //workerTask.EnqueueWork(RefreshFileSystem);
-        Task.Run(RefreshFileSystem);
+        var t = RefreshFileSystem();
     }
 
     public FileSystem()
