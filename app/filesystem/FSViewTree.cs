@@ -107,6 +107,10 @@ public class FSViewTree
         ScanDirectory(userRootDir);
     }
 
+    public async Task SetRootDirectoryAsync(string path)
+    {
+        await Task.Run(() => SetRootDirectory(path));
+    }
 
     public void ScanDirectory(DirNode scanNode)
     {
@@ -114,15 +118,14 @@ public class FSViewTree
         // in this function, but I think it would just
         // be wasteful in this context. 
 
-        // Check that existing folders still exist
+
         Task iterateFolders = Task.Run(() =>
         {
-            //GD.Print("Entering iterateFolders 1");
+            // Check that existing folders still exist
             int listCount = scanNode.folders.Count;
             List<DirNode> deleteIndicies = new List<DirNode>();
             for (int i = 0; i < listCount; i++)
             {
-                //GD.Print($"iterateFolders i = {i}");
                 //DirectoryInfo checkDir = new DirectoryInfo(scanNode.folders[i].path);
                 if (System.IO.Directory.Exists(scanNode.folders[i].path))
                 {
@@ -135,18 +138,17 @@ public class FSViewTree
                     //scanNode.folders.RemoveAt(i);
                 }
             }
-            //GD.Print("Exiting iterateFolders 1");
+
             foreach (DirNode i in deleteIndicies)
             {
                 scanNode.folders.Remove(i);
             }
 
-            //GD.Print("Entering iterateFolders 2");
+            // Add new folders
             DirectoryInfo[] directories = scanNode.thisDir.GetDirectories();
             listCount = directories.GetLength(0);
             for (int i = 0; i < listCount; i++)
             {
-                //GD.Print($"iterateFolders i = {i}");
                 if (scanNode.folders.Exists((DirNode d) =>
                 {
                     if (d.thisDir.FullName.Equals(directories[i].FullName)) return true;
@@ -157,18 +159,15 @@ public class FSViewTree
                     scanNode.folders.Add(new DirNode(directories[i], scanNode));
                 }
             }
-            //GD.Print("Exiting iterateFolders 2");
         });
 
-        // Check that existing files still exist
         Task iterateFiles = Task.Run(() =>
         {
-            //GD.Print("Entering iterateFiles 1");
+            // Check that existing files still exist
             int listCount = scanNode.files.Count;
             List<FileNode> deleteIndicies = new List<FileNode>();
             for (int i = 0; i < listCount; i++)
             {
-                //GD.Print($"iterateFiles i = {i}");
                 //FileInfo checkFile = new FileInfo(scanNode.files[i].path);
                 if (System.IO.File.Exists(scanNode.files[i].path))
                 {
@@ -181,18 +180,17 @@ public class FSViewTree
                     //scanNode.files.RemoveAt(i);
                 }
             }
-            //GD.Print("Exiting iterateFiles 1");
+
             foreach (FileNode i in deleteIndicies)
             {
                 scanNode.files.Remove(i);
             }
 
+            // Find new files
             FileInfo[] files = scanNode.thisDir.GetFiles();
-            //GD.Print("Entering iterateFiles 2");
             listCount = files.GetLength(0);
             for (int i = 0; i < listCount; i++)
             {
-                //GD.Print($"iterateFiles i = {i}");
                 if (scanNode.files.Exists((FileNode f) =>
                 {
                     if (f.thisFile.FullName.Equals(files[i].FullName)) return true;
@@ -204,9 +202,13 @@ public class FSViewTree
                 }
             }
         });
+        Task.WaitAll(iterateFiles, iterateFolders);
+        return;
+    }
 
-        iterateFolders.Wait();
-        iterateFiles.Wait();
+    public async Task ScanDirectoryAsync(DirNode scanNode)
+    {
+        await Task.Run(() => ScanDirectory(scanNode));
         return;
     }
 
@@ -217,7 +219,26 @@ public class FSViewTree
         return;
     }
 
+    public async Task OpenDirectoryAsync(DirNode openNode)
+    {
+        openNode.isOpen = true;
+        await ScanDirectoryAsync(openNode);
+        return;
+    }
+
     public void CloseDirectory(DirNode closeNode)
+    {
+        closeNode.isOpen = false;
+        foreach (DirNode subNode in closeNode.folders)
+        {
+            subNode.folders.Clear();
+            subNode.files.Clear();
+        }
+
+        return;
+    }
+
+    public async Task CloseDirectoryAsync(DirNode closeNode)
     {
         closeNode.isOpen = false;
         foreach (DirNode subNode in closeNode.folders)
@@ -318,6 +339,12 @@ public class FSViewTree
         //GD.Print("RefreshDirectories(): Exiting function");
         isRefreshing = false;
         FSLock.ReleaseMutex();
+        return;
+    }
+
+    public async Task RefreshDirectoriesAsync()
+    {
+        await Task.Run(() => RefreshDirectories());
         return;
     }
 

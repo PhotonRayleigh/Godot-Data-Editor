@@ -57,19 +57,26 @@ public partial class FileSystem : Panel
         });*/
 
         //workerTask.EnqueueWork(RefreshFileSystem);
-        Task.Run(RefreshFileSystem);
+        var t = RefreshFileSystemAsync();
     }
 
     public FileSystem()
     {
 
     }
+
     internal void RefreshFileSystem()
+    {
+        userWorkingTree!.RefreshDirectories();
+        UpdateTree();
+    }
+
+    internal async Task RefreshFileSystemAsync()
     {
         //Task.Run(() =>
         //{
-        userWorkingTree!.RefreshDirectories();
-        UpdateTree();
+        await userWorkingTree!.RefreshDirectoriesAsync();
+        await UpdateTreeAsync();
         //});
     }
 
@@ -142,9 +149,28 @@ public partial class FileSystem : Panel
             }
             currentCounter[0]++;
         }
+
+        if ((currentCounter[0] >= currentCounter[1]) && workingDirNode.parent == null)
+        {
+            scanning = false;
+        }
+        else if ((currentCounter[0] >= currentCounter[1]) && workingDirNode.parent != null)
+        {
+            currentCounter = counters.Pop();
+            workingDirNode = workingDirNode.parent;
+            workingTreeItem = treeItemStack.Pop();
+        }
+        currentCounter[0]++;
         userEditable = true;
         isUpdating = false;
         userWorkingTree!.FSLock.ReleaseMutex();
+        return;
+    }
+
+
+    public async Task UpdateTreeAsync()
+    {
+        await Task.Run(() => UpdateTree());
         return;
     }
 
@@ -358,7 +384,7 @@ public partial class FileSystem : Panel
             default:
                 break;
         }
-        RefreshFileSystem();
+        var t = RefreshFileSystemAsync();
     }
 
     protected void _OnContextMenuPopupHide()
@@ -395,25 +421,25 @@ public partial class FileSystem : Panel
             return;
         });*/
         Task.Run(() =>
-        {
-            FSViewTree.DirNode? fsNode = FSAssocList[item] as FSViewTree.DirNode;
-            if (fsNode!.parent != null)
-            {
-                if (item.Collapsed == true)
-                {
-                    userWorkingTree!.CloseDirectory(fsNode);
-                }
-                else
-                {
-                    userWorkingTree!.OpenDirectory(fsNode);
-                }
-                userWorkingTree.RefreshDirectories();
-                UpdateTree();
-            }
-            FSCollapseRunning = false;
+       {
+           FSViewTree.DirNode? fsNode = FSAssocList[item] as FSViewTree.DirNode;
+           if (fsNode!.parent != null)
+           {
+               if (item.Collapsed == true)
+               {
+                   userWorkingTree!.CloseDirectory(fsNode);
+               }
+               else
+               {
+                   userWorkingTree!.OpenDirectory(fsNode);
+               }
+               userWorkingTree.RefreshDirectories();
+               UpdateTree();
+           }
+           FSCollapseRunning = false;
 
-            return;
-        });
+           return;
+       });
     }
 
     protected void _OnRefreshButtonPressed()
@@ -421,6 +447,6 @@ public partial class FileSystem : Panel
         //if (isUpdating) return;
         //if (userWorkingTree!.IsRefreshing) return;
         //workerTask.EnqueueWork(() => RefreshFileSystem());
-        Task.Run(RefreshFileSystem);
+        var t = RefreshFileSystemAsync();
     }
 }
