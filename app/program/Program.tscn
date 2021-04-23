@@ -126,4 +126,5 @@ __meta__ = {
 }
 
 [node name="OverlayHook" type="Node" parent="."]
+
 [connection signal="pressed" from="SystemMenuHook/MenuPanel/MenuHBox/PrintMenuChildren" to="SystemMenuHook/MenuPanel" method="_OnPrintMenuChildren"]
