@@ -155,8 +155,6 @@ public partial class FileSystem : Panel
             GD.PrintErr("Stack Trace:\n" +
                 e.StackTrace);
         }
-
-        var t = RefreshFileSystemAsync();
         return;
     }
 
@@ -184,8 +182,6 @@ public partial class FileSystem : Panel
             GD.PrintErr("Stack Trace:\n" +
                 e.StackTrace);
         }
-
-        var t = RefreshFileSystemAsync();
         return;
     }
 

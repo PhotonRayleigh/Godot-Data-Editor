@@ -28,17 +28,14 @@ public partial class FileSystem : Panel
     public string path = "user://";
     protected System.Collections.Generic.Dictionary<TreeItem, FSViewTree.Node> FSAssocList = new();
 
-    class MyClass1
-    {
-        public int i;
-    }
-
     public System.Collections.Generic.Dictionary<TreeItem, FSViewTree.Node> GetFSAssocList()
     {
         return FSAssocList;
     }
-    private WorkQueueThread workerThread = new();
-    private WorkQueueTask workerTask = new();
+
+    // Instead of using a queue, opting to throw out duplicate requests if a request is already running.
+    //private WorkQueueThread workerThread = new();
+    //private WorkQueueTask workerTask = new();
 
     protected FSViewTree.Node[] clipBoard = new FSViewTree.Node[0];
 
@@ -55,9 +52,7 @@ public partial class FileSystem : Panel
         {
             RefreshFileSystem();
         });*/
-
-        //workerTask.EnqueueWork(RefreshFileSystem);
-        var t = RefreshFileSystemAsync();
+        Task.Run(RefreshFileSystem);
     }
 
     public FileSystem()
@@ -65,19 +60,40 @@ public partial class FileSystem : Panel
 
     }
 
+    bool isRefreshing = false;
+    EventWaitHandle refreshEvent = new(true, EventResetMode.ManualReset);
+    Task RefreshTask;
+    /// <summary>
+    /// Refreshes the file system GUI. Is synchronous by default.
+    /// refreshEvent and isRefreshing are state variables
+    /// to help control when RefreshFileSystem is allowed to run.
+    /// </summary>
     internal void RefreshFileSystem()
     {
+        //if (isRefreshing) return; // Going to delegate this responsibility to functions that call this one
+        refreshEvent.Reset();
+        isRefreshing = true;
+
         userWorkingTree!.RefreshDirectories();
         UpdateTree();
+
+        isRefreshing = false;
+        refreshEvent.Set();
     }
 
-    internal async Task RefreshFileSystemAsync()
+    internal void RefreshFileSystemQueued()
     {
-        //Task.Run(() =>
-        //{
-        await userWorkingTree!.RefreshDirectoriesAsync();
-        await UpdateTreeAsync();
-        //});
+        Task.Run(() =>
+        {
+            refreshEvent.WaitOne();
+            RefreshFileSystem();
+        });
+    }
+
+    internal void RefreshFileSystemDiscard()
+    {
+        if (isRefreshing) return;
+        Task.Run(RefreshFileSystem);
     }
 
     bool isUpdating = false;
@@ -167,12 +183,6 @@ public partial class FileSystem : Panel
         return;
     }
 
-
-    public async Task UpdateTreeAsync()
-    {
-        await Task.Run(() => UpdateTree());
-        return;
-    }
 
     public string? GetSelectedPath()
     {
@@ -351,11 +361,11 @@ public partial class FileSystem : Panel
                 {
                     if (item is FSViewTree.DirNode)
                     {
-                        Copy(item as FSViewTree.DirNode, selection[0] as FSViewTree.DirNode); // TODO: make it not dangerous
+                        Copy((FSViewTree.DirNode)item, (FSViewTree.DirNode)selection[0]); // TODO: make it not dangerous
                     }
                     else if (item is FSViewTree.FileNode)
                     {
-                        Copy(item as FSViewTree.FileNode, selection[0] as FSViewTree.DirNode);
+                        Copy((FSViewTree.FileNode)item, (FSViewTree.DirNode)selection[0]);
                     }
                 }
                 break;
@@ -369,11 +379,11 @@ public partial class FileSystem : Panel
                     // TODO: Add prompt and implement SoftDelete!
                     if (item.type == FSViewTree.NodeType.folder)
                     {
-                        HardDelete(item as FSViewTree.DirNode);
+                        HardDelete((FSViewTree.DirNode)item);
                     }
                     else if (item.type == FSViewTree.NodeType.file)
                     {
-                        HardDelete(item as FSViewTree.FileNode);
+                        HardDelete((FSViewTree.FileNode)item);
                     }
                 }
                 break;
@@ -384,7 +394,7 @@ public partial class FileSystem : Panel
             default:
                 break;
         }
-        var t = RefreshFileSystemAsync();
+        RefreshFileSystemQueued();
     }
 
     protected void _OnContextMenuPopupHide()
@@ -400,28 +410,11 @@ public partial class FileSystem : Panel
         FSCollapseRunning = true;
         userEditable = false;
 
-        /*workerThread.EnqueueWork(() =>
-        {
-            FSViewTree.DirNode? fsNode = FSAssocList[item] as FSViewTree.DirNode;
-            if (fsNode!.parent != null)
-            {
-                if (item.Collapsed == true)
-                {
-                    userWorkingTree!.CloseDirectory(fsNode);
-                }
-                else
-                {
-                    userWorkingTree!.OpenDirectory(fsNode);
-                }
-                userWorkingTree.RefreshDirectories();
-                UpdateTree();
-            }
-            FSCollapseRunning = false;
-
-            return;
-        });*/
         Task.Run(() =>
        {
+           // If the user collapses a folder,
+           // we can only update AFTER the latest refresh
+           refreshEvent.WaitOne();
            FSViewTree.DirNode? fsNode = FSAssocList[item] as FSViewTree.DirNode;
            if (fsNode!.parent != null)
            {
@@ -433,20 +426,15 @@ public partial class FileSystem : Panel
                {
                    userWorkingTree!.OpenDirectory(fsNode);
                }
-               userWorkingTree.RefreshDirectories();
-               UpdateTree();
+               RefreshFileSystem();
            }
            FSCollapseRunning = false;
-
            return;
        });
     }
 
     protected void _OnRefreshButtonPressed()
     {
-        //if (isUpdating) return;
-        //if (userWorkingTree!.IsRefreshing) return;
-        //workerTask.EnqueueWork(() => RefreshFileSystem());
-        var t = RefreshFileSystemAsync();
+        RefreshFileSystemDiscard();
     }
 }

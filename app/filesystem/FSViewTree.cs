@@ -9,21 +9,6 @@ using System.Threading.Tasks;
 public class FSViewTree
 {
     /*
-        Scratch pad:
-        New paradigm: thread friendly, not threaded by default.
-        I would like all of the FSViewTree operations to happen in their own thread.
-        However, I don't know how to properly do this without making a terrible mess.
-
-        So, instead, I will make the class thread friendly, and if the calling objects need
-        the functions to happen in threads, the calling object can handle that.
-    */
-
-    // 4/22/2021 - Reverted back to before I switched threading model to async.
-    // I really don't know what happened, but something changed where the async version
-    // just stopped working. Going to stay away from async/await for the time being.
-    // Outside of where it makes sense in existing API's at least.
-
-    /*
         FSViewTree:
         Godot doesn't include conversion of paths, it only uses forward slash notation.
         i.e.
@@ -109,7 +94,11 @@ public class FSViewTree
 
     public async Task SetRootDirectoryAsync(string path)
     {
-        await Task.Run(() => SetRootDirectory(path));
+        var t = Task.Run(() => SetRootDirectory(path));
+        if (!t.IsCompleted)
+        {
+            await t;
+        }
     }
 
     public void ScanDirectory(DirNode scanNode)
@@ -240,12 +229,7 @@ public class FSViewTree
 
     public async Task CloseDirectoryAsync(DirNode closeNode)
     {
-        closeNode.isOpen = false;
-        foreach (DirNode subNode in closeNode.folders)
-        {
-            subNode.folders.Clear();
-            subNode.files.Clear();
-        }
+        await Task.Run(() => CloseDirectory(closeNode));
         return;
     }
 
