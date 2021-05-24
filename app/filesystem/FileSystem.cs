@@ -20,6 +20,7 @@ public partial class FileSystem : Panel
             Automatic refresh on filesystem changes (only when main window is back in focus)
             Implement file/folder sorting.
     */
+    private UpdateThread updateFileSystem; // This manages all updating of the filesystem and view
     protected bool userEditable = false;
     public FSViewTree? userWorkingTree;
     public Tree? FileSystemListNode;
@@ -33,10 +34,6 @@ public partial class FileSystem : Panel
         return FSAssocList;
     }
 
-    // Instead of using a queue, opting to throw out duplicate requests if a request is already running.
-    //private WorkQueueThread workerThread = new();
-    //private WorkQueueTask workerTask = new();
-
     protected FSViewTree.Node[] clipBoard = new FSViewTree.Node[0];
 
     public override void _Ready()
@@ -46,63 +43,28 @@ public partial class FileSystem : Panel
         FilePathNode = GetNode<LineEdit>("HBoxContainer/FilePath");
         userWorkingTree = new FSViewTree(path);
         FilePathNode.Text = userWorkingTree.userRootDir!.path;
-        // This is a best example of how these classes should be used
-        // Just run blocking operations in their own threads. 
-        /*workerThread.EnqueueWork(() =>
-        {
-            RefreshFileSystem();
-        });*/
-        Task.Run(RefreshFileSystem);
+
+        updateFileSystem.TriggerRefreshSynchronous();
     }
 
     public FileSystem()
     {
-
+        updateFileSystem = new(this);
     }
 
-    bool isRefreshing = false;
-    EventWaitHandle refreshEvent = new(true, EventResetMode.ManualReset);
-    Task RefreshTask;
-    /// <summary>
-    /// Refreshes the file system GUI. Is synchronous by default.
-    /// refreshEvent and isRefreshing are state variables
-    /// to help control when RefreshFileSystem is allowed to run.
-    /// </summary>
-    internal void RefreshFileSystem()
+    public void TriggerRefresh(bool queue = false)
     {
-        //if (isRefreshing) return; // Going to delegate this responsibility to functions that call this one
-        refreshEvent.Reset();
-        isRefreshing = true;
-
-        userWorkingTree!.RefreshDirectories();
-        UpdateTree();
-
-        isRefreshing = false;
-        refreshEvent.Set();
+        updateFileSystem.TriggerRefresh(queue);
+    }
+    public void TriggerRefreshSynchronous()
+    {
+        updateFileSystem.TriggerRefreshSynchronous();
     }
 
-    internal void RefreshFileSystemQueued()
+    protected void UpdateTree()
     {
-        Task.Run(() =>
-        {
-            refreshEvent.WaitOne();
-            RefreshFileSystem();
-        });
-    }
-
-    internal void RefreshFileSystemDiscard()
-    {
-        if (isRefreshing) return;
-        Task.Run(RefreshFileSystem);
-    }
-
-    bool isUpdating = false;
-    public void UpdateTree()
-    {
-        //if (isUpdating) return;
-
+        GD.Print($"Update Tree thread: {System.Threading.Thread.CurrentThread.ManagedThreadId}");
         userEditable = false;
-        isUpdating = true;
 
         userWorkingTree!.FSLock.WaitOne();
 
@@ -178,11 +140,9 @@ public partial class FileSystem : Panel
         }
         currentCounter[0]++;
         userEditable = true;
-        isUpdating = false;
         userWorkingTree!.FSLock.ReleaseMutex();
         return;
     }
-
 
     public string? GetSelectedPath()
     {
@@ -394,7 +354,7 @@ public partial class FileSystem : Panel
             default:
                 break;
         }
-        RefreshFileSystemQueued();
+        updateFileSystem.TriggerRefresh(true);
     }
 
     protected void _OnContextMenuPopupHide()
@@ -414,7 +374,7 @@ public partial class FileSystem : Panel
        {
            // If the user collapses a folder,
            // we can only update AFTER the latest refresh
-           refreshEvent.WaitOne();
+           updateFileSystem.waitForRefresh.WaitOne();
            FSViewTree.DirNode? fsNode = FSAssocList[item] as FSViewTree.DirNode;
            if (fsNode!.parent != null)
            {
@@ -426,7 +386,7 @@ public partial class FileSystem : Panel
                {
                    userWorkingTree!.OpenDirectory(fsNode);
                }
-               RefreshFileSystem();
+               updateFileSystem.TriggerRefreshSynchronous();
            }
            FSCollapseRunning = false;
            return;
@@ -435,6 +395,77 @@ public partial class FileSystem : Panel
 
     protected void _OnRefreshButtonPressed()
     {
-        RefreshFileSystemDiscard();
+        updateFileSystem.TriggerRefresh(true);
+    }
+
+    /// <summary>
+    /// UpdateThread class manages execution of refreshing the filesystem.
+    /// It is designed to only allow one worker thread to be active for refreshing
+    /// at a time. You can optionally tell it to queue a refresh immediately after the
+    /// current one
+    /// </summary>
+    protected class UpdateThread
+    {
+        // Todo: maybe use async methods internal to this class?
+        public EventWaitHandle waitForRefresh = new(true, EventResetMode.ManualReset);
+        public EventWaitHandle synchronousRefresh = new(true, EventResetMode.ManualReset);
+        private Task worker;
+        public Task Worker
+        {
+            get => worker;
+        }
+        private FileSystem owner;
+        private bool queueRefresh = false;
+
+        public void TriggerRefresh(bool queue = false)
+        {
+            synchronousRefresh.WaitOne();
+            if (worker.Status == TaskStatus.Created)
+            {
+                waitForRefresh.Reset();
+                worker.Start();
+            }
+            else if (worker.IsCompleted)
+            {
+                waitForRefresh.Reset();
+                worker.ContinueWith((Task prev) => ThreadAction());
+            }
+            else if (queue)
+            {
+                queueRefresh = true;
+            }
+            return;
+        }
+
+        public void TriggerRefreshSynchronous()
+        {
+            waitForRefresh.WaitOne();
+            synchronousRefresh.Reset();
+
+            owner.userWorkingTree!.RefreshDirectories();
+            owner.UpdateTree();
+
+            synchronousRefresh.Set();
+        }
+
+        private void ThreadAction()
+        {
+            // lock this event while refreshing so other
+            // parts of the program can synchronize if needed.
+            do
+            {
+                queueRefresh = false;
+                owner.userWorkingTree!.RefreshDirectories();
+                owner.UpdateTree();
+            } while (queueRefresh);
+            // Once done, set the event so anything waiting on it gets unblocked.
+            waitForRefresh.Set();
+        }
+
+        public UpdateThread(FileSystem owner)
+        {
+            this.owner = owner;
+            worker = new(ThreadAction);
+        }
     }
 }

@@ -107,89 +107,16 @@ public class FSViewTree
         // in this function, but I think it would just
         // be wasteful in this context. 
 
-
+        GD.Print($"Scan Directory thread start: {System.Threading.Thread.CurrentThread.ManagedThreadId}");
         Task iterateFolders = Task.Run(() =>
         {
-            // Check that existing folders still exist
-            int listCount = scanNode.folders.Count;
-            List<DirNode> deleteIndicies = new List<DirNode>();
-            for (int i = 0; i < listCount; i++)
-            {
-                //DirectoryInfo checkDir = new DirectoryInfo(scanNode.folders[i].path);
-                if (System.IO.Directory.Exists(scanNode.folders[i].path))
-                {
-                    //scanNode.folders[i] = new DirNode(checkDir, scanNode.folders[i].parent);
-                    continue;
-                }
-                else
-                {
-                    deleteIndicies.Add(scanNode.folders[i]);
-                    //scanNode.folders.RemoveAt(i);
-                }
-            }
-
-            foreach (DirNode i in deleteIndicies)
-            {
-                scanNode.folders.Remove(i);
-            }
-
-            // Add new folders
-            DirectoryInfo[] directories = scanNode.thisDir.GetDirectories();
-            listCount = directories.GetLength(0);
-            for (int i = 0; i < listCount; i++)
-            {
-                if (scanNode.folders.Exists((DirNode d) =>
-                {
-                    if (d.thisDir.FullName.Equals(directories[i].FullName)) return true;
-                    else return false;
-                })) continue;
-                else
-                {
-                    scanNode.folders.Add(new DirNode(directories[i], scanNode));
-                }
-            }
+            GD.Print($"Iterate folders thread start: {System.Threading.Thread.CurrentThread.ManagedThreadId}");
+            IterateFolders(scanNode);
         });
 
         Task iterateFiles = Task.Run(() =>
         {
-            // Check that existing files still exist
-            int listCount = scanNode.files.Count;
-            List<FileNode> deleteIndicies = new List<FileNode>();
-            for (int i = 0; i < listCount; i++)
-            {
-                //FileInfo checkFile = new FileInfo(scanNode.files[i].path);
-                if (System.IO.File.Exists(scanNode.files[i].path))
-                {
-                    //scanNode.files[i] = new FileNode(checkFile, scanNode.files[i].parent);
-                    continue;
-                }
-                else
-                {
-                    deleteIndicies.Add(scanNode.files[i]);
-                    //scanNode.files.RemoveAt(i);
-                }
-            }
-
-            foreach (FileNode i in deleteIndicies)
-            {
-                scanNode.files.Remove(i);
-            }
-
-            // Find new files
-            FileInfo[] files = scanNode.thisDir.GetFiles();
-            listCount = files.GetLength(0);
-            for (int i = 0; i < listCount; i++)
-            {
-                if (scanNode.files.Exists((FileNode f) =>
-                {
-                    if (f.thisFile.FullName.Equals(files[i].FullName)) return true;
-                    else return false;
-                })) continue;
-                else
-                {
-                    scanNode.files.Add(new FileNode(files[i], scanNode));
-                }
-            }
+            IterateFiles(scanNode);
         });
         Task.WaitAll(iterateFiles, iterateFolders);
         return;
@@ -197,9 +124,113 @@ public class FSViewTree
 
     public async Task ScanDirectoryAsync(DirNode scanNode)
     {
-        await Task.Run(() => ScanDirectory(scanNode));
+        Task iterateFolders = Task.Run(() =>
+        {
+            GD.Print($"Iterate folders thread start: {System.Threading.Thread.CurrentThread.ManagedThreadId}");
+            IterateFolders(scanNode);
+        });
+
+        Task iterateFiles = Task.Run(() =>
+        {
+            IterateFiles(scanNode);
+        });
+        GD.Print($"Scan Directory thread start: {System.Threading.Thread.CurrentThread.ManagedThreadId}");
+        await iterateFolders;
+        await iterateFiles;
+        GD.Print($"Scan Directory thread end: {System.Threading.Thread.CurrentThread.ManagedThreadId}");
+
         return;
     }
+
+    protected void IterateFolders(DirNode scanNode)
+    {
+        // Check that existing folders still exist
+        int listCount = scanNode.folders.Count;
+        List<DirNode> deleteIndicies = new List<DirNode>();
+        for (int i = 0; i < listCount; i++)
+        {
+            //DirectoryInfo checkDir = new DirectoryInfo(scanNode.folders[i].path);
+            if (System.IO.Directory.Exists(scanNode.folders[i].path))
+            {
+                //scanNode.folders[i] = new DirNode(checkDir, scanNode.folders[i].parent);
+                continue;
+            }
+            else
+            {
+                deleteIndicies.Add(scanNode.folders[i]);
+                //scanNode.folders.RemoveAt(i);
+            }
+        }
+
+        foreach (DirNode i in deleteIndicies)
+        {
+            scanNode.folders.Remove(i);
+        }
+
+        // Add new folders
+        DirectoryInfo[] directories = scanNode.thisDir.GetDirectories();
+        listCount = directories.GetLength(0);
+        for (int i = 0; i < listCount; i++)
+        {
+            if (scanNode.folders.Exists((DirNode d) =>
+            {
+                if (d.thisDir.FullName.Equals(directories[i].FullName)) return true;
+                else return false;
+            })) continue;
+            else
+            {
+                scanNode.folders.Add(new DirNode(directories[i], scanNode));
+            }
+        }
+    }
+
+    protected void IterateFiles(DirNode scanNode)
+    {
+        // Check that existing files still exist
+        int listCount = scanNode.files.Count;
+        List<FileNode> deleteIndicies = new List<FileNode>();
+        for (int i = 0; i < listCount; i++)
+        {
+            //FileInfo checkFile = new FileInfo(scanNode.files[i].path);
+            if (System.IO.File.Exists(scanNode.files[i].path))
+            {
+                //scanNode.files[i] = new FileNode(checkFile, scanNode.files[i].parent);
+                continue;
+            }
+            else
+            {
+                deleteIndicies.Add(scanNode.files[i]);
+                //scanNode.files.RemoveAt(i);
+            }
+        }
+
+        foreach (FileNode i in deleteIndicies)
+        {
+            scanNode.files.Remove(i);
+        }
+
+        // Find new files
+        FileInfo[] files = scanNode.thisDir.GetFiles();
+        listCount = files.GetLength(0);
+        for (int i = 0; i < listCount; i++)
+        {
+            if (scanNode.files.Exists((FileNode f) =>
+            {
+                if (f.thisFile.FullName.Equals(files[i].FullName)) return true;
+                else return false;
+            })) continue;
+            else
+            {
+                scanNode.files.Add(new FileNode(files[i], scanNode));
+            }
+        }
+    }
+
+    /*public async Task ScanDirectoryAsync(DirNode scanNode)
+    {
+        await Task.Run(() => ScanDirectory(scanNode));
+        return;
+    }*/
 
     public void OpenDirectory(DirNode openNode)
     {
@@ -328,7 +359,65 @@ public class FSViewTree
 
     public async Task RefreshDirectoriesAsync()
     {
-        await Task.Run(() => RefreshDirectories());
+        await Task.Run(async () =>
+        {
+            FSLock.WaitOne();
+            //if (isRefreshing) return;
+            isRefreshing = true;
+            //GD.Print("RefreshDirectories(): Entering function");
+            if (userRootDir == null)
+            {
+                GD.PrintErr("FSViewTree.RefreshDirectories(): Error, root directory is not set.");
+                return;
+            }
+            if (!userRootDir.thisDir.Exists)
+            {
+                GD.PrintErr("FSViewTree.RefreshDirectories(): Error, root directory does not exist.");
+                return;
+            }
+
+            bool scanning = true;
+            await ScanDirectoryAsync(userRootDir);
+            Stack<IterationInfo> itrStack = new Stack<IterationInfo>();
+            IterationInfo currentItr = new IterationInfo() { Count = userRootDir.folders.Count };
+            DirNode currentDir = userRootDir;
+
+            while (scanning)
+            {
+                //GD.Print($"Current directory is: {currentDir.path} on iteration {currentItr.currentIndex} out of {currentItr.FinalIndex}");
+                if ((currentItr.currentIndex < currentItr.Count) && currentDir.isOpen)
+                {
+                    DirNode checkFolder = currentDir.folders[currentItr.currentIndex];
+                    await ScanDirectoryAsync(checkFolder);
+                    if (checkFolder.folders.Count > 0)
+                    {
+                        //currentItr.currentIndex++;
+                        itrStack.Push(currentItr);
+                        currentDir = checkFolder;
+                        currentItr = new IterationInfo() { Count = currentDir.folders.Count };
+
+                        continue;
+                    }
+                }
+
+                if (currentItr.currentIndex >= currentItr.FinalIndex && currentDir.parent != null)
+                {
+                    currentItr = itrStack.Pop();
+
+                    currentDir = currentDir.parent;
+                }
+                else if (currentItr.currentIndex >= currentItr.FinalIndex && currentDir.parent == null)
+                {
+                    scanning = false;
+                }
+
+                currentItr.currentIndex++;
+            }
+            //GD.Print("RefreshDirectories(): Exiting function");
+            isRefreshing = false;
+            FSLock.ReleaseMutex();
+            return;
+        });
         return;
     }
 

@@ -2,6 +2,7 @@ using Godot;
 using System;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 //using System.Data.SQLite; // SQLite ADO.Net data provider
 using Newtonsoft.Json; // Full featured JSON serializer
 using Newtonsoft.Json.Bson;
@@ -31,4 +32,47 @@ public class Program : Control
     //  {
     //      
     //  }
+
+    const int threadCount = 100;
+    bool threadsSpawned = false;
+    System.Collections.Generic.List<System.Threading.Thread> threadList = new();
+    ManualResetEventSlim re = new(false);
+
+    protected async void _OnThreadButtonPressed()
+    {
+        if (!threadsSpawned)
+        {
+            for (int i = 0; i < threadCount; i++)
+            {
+                System.Threading.Thread t = new(ThreadProc);
+                t.IsBackground = true;
+                threadList.Add(t);
+                t.Start();
+            }
+            threadsSpawned = true;
+        }
+        else
+        {
+            re.Set();
+            await Task.Delay(100);
+            re.Reset();
+        }
+
+        return;
+
+        void ThreadProc()
+        {
+            int threadID = System.Threading.Thread.CurrentThread.ManagedThreadId;
+            int q = 0;
+            while (true)
+            {
+                q++;
+                if (!re.IsSet)
+                {
+                    Console.WriteLine($"Thread {threadID}: {q}");
+                    re.Wait();
+                }
+            }
+        }
+    }
 }

@@ -127,4 +127,13 @@ __meta__ = {
 
 [node name="OverlayHook" type="Node" parent="."]
 
+[node name="Button" type="Button" parent="."]
+visible = false
+margin_left = 22.6326
+margin_top = 545.12
+margin_right = 244.633
+margin_bottom = 574.12
+text = "Spawn Crap Ton of Threads"
+
 [connection signal="pressed" from="SystemMenuHook/MenuPanel/MenuHBox/PrintMenuChildren" to="SystemMenuHook/MenuPanel" method="_OnPrintMenuChildren"]
+[connection signal="pressed" from="Button" to="." method="_OnThreadButtonPressed"]
