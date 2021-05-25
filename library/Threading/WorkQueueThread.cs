@@ -34,6 +34,11 @@ namespace SparkLib
             workThread.Start();
         }
 
+        ~WorkQueueThread()
+        {
+            source.Dispose();
+        }
+
         protected void ThreadProc()
         {
             while (!source.IsCancellationRequested)
