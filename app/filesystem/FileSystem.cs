@@ -20,7 +20,7 @@ public partial class FileSystem : Panel
             Automatic refresh on filesystem changes (only when main window is back in focus)
             Implement file/folder sorting.
     */
-    private UpdateThread updateFileSystem; // This manages all updating of the filesystem and view
+    private UpdateDispatcher updateFileSystem; // This manages all updating of the filesystem and view
     protected bool userEditable = false;
     public FSViewTree? userWorkingTree;
     public Tree? FileSystemListNode;
@@ -44,7 +44,7 @@ public partial class FileSystem : Panel
         userWorkingTree = new FSViewTree(path);
         FilePathNode.Text = userWorkingTree.userRootDir!.path;
 
-        updateFileSystem.TriggerRefreshSynchronous();
+        updateFileSystem.RefreshFSSynchronous();
     }
 
     public FileSystem()
@@ -52,18 +52,17 @@ public partial class FileSystem : Panel
         updateFileSystem = new(this);
     }
 
-    public void TriggerRefresh(bool queue = false)
+    public Task TriggerRefresh()
     {
-        updateFileSystem.TriggerRefresh(queue);
+        return updateFileSystem.RefreshFSAsync();
     }
     public void TriggerRefreshSynchronous()
     {
-        updateFileSystem.TriggerRefreshSynchronous();
+        updateFileSystem.RefreshFSSynchronous();
     }
 
     protected void UpdateTree()
     {
-        GD.Print($"Update Tree thread: {System.Threading.Thread.CurrentThread.ManagedThreadId}");
         userEditable = false;
 
         userWorkingTree!.FSLock.WaitOne();
@@ -354,7 +353,7 @@ public partial class FileSystem : Panel
             default:
                 break;
         }
-        updateFileSystem.TriggerRefresh(true);
+        var t = updateFileSystem.RefreshFSAsync();
     }
 
     protected void _OnContextMenuPopupHide()
@@ -370,11 +369,11 @@ public partial class FileSystem : Panel
         FSCollapseRunning = true;
         userEditable = false;
 
-        Task.Run(() =>
+        Task.Run(async () =>
        {
            // If the user collapses a folder,
            // we can only update AFTER the latest refresh
-           updateFileSystem.waitForRefresh.WaitOne();
+           await updateFileSystem.Worker;
            FSViewTree.DirNode? fsNode = FSAssocList[item] as FSViewTree.DirNode;
            if (fsNode!.parent != null)
            {
@@ -386,7 +385,7 @@ public partial class FileSystem : Panel
                {
                    userWorkingTree!.OpenDirectory(fsNode);
                }
-               updateFileSystem.TriggerRefreshSynchronous();
+               await updateFileSystem.RefreshFSAsync();
            }
            FSCollapseRunning = false;
            return;
@@ -395,7 +394,7 @@ public partial class FileSystem : Panel
 
     protected void _OnRefreshButtonPressed()
     {
-        updateFileSystem.TriggerRefresh(true);
+        var t = updateFileSystem.RefreshFSAsync();
     }
 
     /// <summary>
@@ -404,40 +403,30 @@ public partial class FileSystem : Panel
     /// at a time. You can optionally tell it to queue a refresh immediately after the
     /// current one
     /// </summary>
-    protected class UpdateThread
+    protected class UpdateDispatcher
     {
         // Todo: maybe use async methods internal to this class?
         public EventWaitHandle waitForRefresh = new(true, EventResetMode.ManualReset);
         public EventWaitHandle synchronousRefresh = new(true, EventResetMode.ManualReset);
-        private Task worker;
+        private Task? worker;
         public Task Worker
         {
-            get => worker;
+            get => worker ?? RefreshFSAsync();
         }
         private FileSystem owner;
-        private bool queueRefresh = false;
+        private ManualResetEventSlim awaitingRefresh = new(false);
 
-        public void TriggerRefresh(bool queue = false)
+        public async Task RefreshFSAsync()
         {
             synchronousRefresh.WaitOne();
-            if (worker.Status == TaskStatus.Created)
-            {
-                waitForRefresh.Reset();
-                worker.Start();
-            }
-            else if (worker.IsCompleted)
-            {
-                waitForRefresh.Reset();
-                worker.ContinueWith((Task prev) => ThreadAction());
-            }
-            else if (queue)
-            {
-                queueRefresh = true;
-            }
-            return;
+            if (awaitingRefresh.IsSet) return;
+            awaitingRefresh.Set();
+            if (worker is not null) await worker;
+            worker = RefreshActionAsync();
+            awaitingRefresh.Reset();
         }
 
-        public void TriggerRefreshSynchronous()
+        public void RefreshFSSynchronous()
         {
             waitForRefresh.WaitOne();
             synchronousRefresh.Reset();
@@ -448,24 +437,26 @@ public partial class FileSystem : Panel
             synchronousRefresh.Set();
         }
 
-        private void ThreadAction()
+        private void RefreshAction()
         {
             // lock this event while refreshing so other
             // parts of the program can synchronize if needed.
-            do
-            {
-                queueRefresh = false;
-                owner.userWorkingTree!.RefreshDirectories();
-                owner.UpdateTree();
-            } while (queueRefresh);
+            waitForRefresh.Reset();
+            owner.userWorkingTree!.RefreshDirectories();
+            owner.UpdateTree();
             // Once done, set the event so anything waiting on it gets unblocked.
             waitForRefresh.Set();
         }
 
-        public UpdateThread(FileSystem owner)
+        private async Task RefreshActionAsync()
+        {
+            await Task.Run(RefreshAction);
+        }
+
+        public UpdateDispatcher(FileSystem owner)
         {
             this.owner = owner;
-            worker = new(ThreadAction);
+            //worker = new(ThreadAction);
         }
     }
 }

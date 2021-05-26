@@ -2,6 +2,7 @@ using Godot;
 using System;
 using System.Linq;
 using System.Threading;
+using NetThread = System.Threading.Thread;
 using System.Threading.Tasks;
 //using System.Data.SQLite; // SQLite ADO.Net data provider
 using Newtonsoft.Json; // Full featured JSON serializer
@@ -11,6 +12,7 @@ using Newtonsoft.Json.Linq;
 using System.Xml.Linq;
 using LiteDB;
 // using System.IO;
+using SparkLib;
 
 public class Program : Control
 {
@@ -38,7 +40,27 @@ public class Program : Control
     System.Collections.Generic.List<System.Threading.Thread> threadList = new();
     ManualResetEventSlim re = new(false);
 
-    protected async void _OnThreadButtonPressed()
+    AsyncWorkerAsync myWorker = new();
+
+    protected void _OnThreadButtonPressed()
+    {
+        for (int i = 0; i < 1_000; i++)
+        {
+            //var t = Task.Run(() =>
+            myWorker.SubmitJob(() =>
+           {
+               Random myRandom = new();
+               int myTotal = 0;
+               for (int j = 0; j < 100_000_000; j++)
+               {
+                   myTotal += myRandom.Next(-10, 10);
+               }
+               Console.WriteLine($"Thread {System.Threading.Thread.CurrentThread.ManagedThreadId}: Total = {myTotal}");
+           });
+        }
+    }
+
+    protected async void ThreadSpawner()
     {
         if (!threadsSpawned)
         {

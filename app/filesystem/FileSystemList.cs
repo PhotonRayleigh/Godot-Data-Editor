@@ -111,6 +111,6 @@ public class FileSystemList : Tree
         if (targetNode == null) return;
         fileSystem!.Move(dataArray, targetNode);
         targetNode = null;
-        fileSystem.TriggerRefresh(true);
+        var t = fileSystem.TriggerRefresh();
     }
 }
