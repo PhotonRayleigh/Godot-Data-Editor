@@ -1,10 +1,11 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://app/jsoninspector/JSONInspector.cs" type="Script" id=1]
 [ext_resource path="res://library/custom controls/DataTable.tscn" type="PackedScene" id=2]
 [ext_resource path="res://resources/themes/Base_Theme.tres" type="Theme" id=3]
 [ext_resource path="res://resources/fonts/Roboto_Regular 12.tres" type="DynamicFont" id=4]
 [ext_resource path="res://app/filesystem/FileSystem.tscn" type="PackedScene" id=5]
+[ext_resource path="res://resources/themes/Custom_Theme.tres" type="Theme" id=6]
 
 [sub_resource type="StyleBoxFlat" id=1]
 bg_color = Color( 0.261832, 0.278589, 0.289063, 1 )
@@ -22,6 +23,7 @@ border_color = Color( 0.254902, 0.360784, 0.447059, 1 )
 anchor_right = 1.0
 anchor_bottom = 1.0
 rect_min_size = Vector2( 1024, 500 )
+theme = ExtResource( 6 )
 script = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
@@ -34,6 +36,7 @@ anchor_right = 0.409798
 anchor_bottom = 0.981667
 size_flags_horizontal = 3
 size_flags_vertical = 3
+theme = ExtResource( 6 )
 custom_fonts/font = ExtResource( 4 )
 tab_align = 0
 __meta__ = {
@@ -43,16 +46,20 @@ __meta__ = {
 [node name="DatabaseList" type="Tree" parent="LeftTabSet"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = 5.0
-margin_top = 30.0
-margin_right = -5.0
-margin_bottom = -5.0
+margin_left = 4.0
+margin_top = 29.0
+margin_right = -4.0
+margin_bottom = -4.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="FileSystem" parent="LeftTabSet" instance=ExtResource( 5 )]
 visible = false
+margin_left = 4.0
+margin_top = 29.0
+margin_right = -4.0
+margin_bottom = -4.0
 
 [node name="CenterControls" type="VBoxContainer" parent="."]
 anchor_left = 0.416016
@@ -169,19 +176,19 @@ __meta__ = {
 [node name="DataTable" parent="RightTabSet" instance=ExtResource( 2 )]
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = 5.0
-margin_top = 30.0
-margin_right = -5.0
-margin_bottom = -5.0
+margin_left = 4.0
+margin_top = 29.0
+margin_right = -4.0
+margin_bottom = -4.0
 
 [node name="JsonOutput" type="Panel" parent="RightTabSet"]
 visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = 5.0
-margin_top = 30.0
-margin_right = -5.0
-margin_bottom = -5.0
+margin_left = 4.0
+margin_top = 29.0
+margin_right = -4.0
+margin_bottom = -4.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 custom_styles/panel = SubResource( 1 )
@@ -241,6 +248,7 @@ text = "Refresh View Tree"
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
 [connection signal="pressed" from="CenterControls/ConvertToJson" to="." method="_OnConvertToJsonPressed"]
 [connection signal="pressed" from="CenterControls/ClearText" to="." method="_OnClearTextPressed"]
 [connection signal="pressed" from="CenterControls/SaveToFile" to="." method="_OnSaveToFilePressed"]

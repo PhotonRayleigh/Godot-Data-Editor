@@ -204,6 +204,7 @@ margin_bottom = 50.0
 custom_fonts/font = ExtResource( 1 )
 editable = false
 expand_to_text_length = true
+
 [connection signal="pressed" from="ScrollContainer/Table/TableControls/AddRow" to="." method="_OnAddRowPressed"]
 [connection signal="pressed" from="ScrollContainer/Table/TableControls/RemoveRow" to="." method="_OnRemoveRowPressed"]
 [connection signal="pressed" from="ScrollContainer/Table/TableControls/AddColumn" to="." method="_OnAddColumnPressed"]

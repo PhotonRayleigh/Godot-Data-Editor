@@ -373,7 +373,8 @@ public partial class FileSystem : Panel
        {
            // If the user collapses a folder,
            // we can only update AFTER the latest refresh
-           await updateFileSystem.Worker;
+           await updateFileSystem.Worker; // This is slightly dodgey. Is there a better way to ensure
+           // there is no refresh tasks running?
            FSViewTree.DirNode? fsNode = FSAssocList[item] as FSViewTree.DirNode;
            if (fsNode!.parent != null)
            {
