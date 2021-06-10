@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using Godot.Utilities.Theme;
 
 [Tool]
 public class AutoTheme : Theme
@@ -17,57 +18,99 @@ public class AutoTheme : Theme
         }
     }
 
-    [Export] // Default is #cfcfcf
-    Color PrimaryFontColor = new(0, 0, 0, 1);
-    [Export] // Default is #4dffffff
-    Color DisabledFontColor = new(0, 0, 0, 1);
-    [Export] // Default is #e2e2e2
-    Color HoverFontColor = new(0, 0, 0, 1);
-    [Export] // Default is #b8e3ff
-    Color PressedFontColor = new(0, 0, 0, 1);
-    [Export] // Default is 293,293,293,255 (16 bit color?)
-    Color HoverIconColor = new(0, 0, 0, 1);
-    [Export] // Default is 211, 261, 293, 255
-    Color PressedIconColor = new(0, 0, 0, 1);
-    [Export] // Default is 303030
-    Color TooltipFontColor = new(0, 0, 0, 1);
-    [Export] // Default is 1a000000
-    Color TooltipFontShadowColor = new(0, 0, 0, 1);
-    [Export] // Default is cdebff
-    Color FolderIconMod = new(0, 0, 0, 1);
-    [Export] // Default is ffffff
-    Color SelectFontColor = new(0, 0, 0, 1);
-
-    [Export] // Default color is #313131
-    StyleBox BackgroundStyle = new StyleBoxEmpty();
-    [Export] // Default color is #373737
-    StyleBox MidgroundStyle = new StyleBoxEmpty();
-    [Export] // Default color is #3D3D3D
-    StyleBox ForegroundStyle = new StyleBoxEmpty();
-    [Export] // Default color is #1affffff (first byte is alpha)
-    StyleBox SeparatorStyle = new StyleBoxLine();
-    [Export] // Default color is #6e6e6e
-    StyleBox HighlightStyle = new StyleBoxEmpty();
-    [Export] // Default color is #252525
-    StyleBox HighlightContrastStyle = new StyleBoxEmpty();
-    [Export] // Default color is #33ffffff
-    StyleBox ItemSelectedStyle = new StyleBoxEmpty();
-    [Export] // Default color is #e6ffffff
-    StyleBox ToolTipStyle = new StyleBoxEmpty();
-
-
-
-    [Export] // Default Midground
-    StyleBox ButtonDisabledStyle = new StyleBoxEmpty();
-    [Export] // Rest of buttons are background
-    StyleBox ButtonFocusStyle = new StyleBoxEmpty();
+    enum FontIconSetting { Dark, Light }
+    FontIconSetting iconAndFontColor = FontIconSetting.Light;
     [Export]
-    StyleBox ButtonHoverStyle = new StyleBoxEmpty();
-    [Export]
-    StyleBox ButtonNormalStyle = new StyleBoxEmpty();
-    [Export]
-    StyleBox ButtonPressedStyle = new StyleBoxEmpty();
+    FontIconSetting IconAndFontColor
+    {
+        get => iconAndFontColor;
+        set
+        {
+            iconAndFontColor = value;
+            switch (iconAndFontColor)
+            {
+                case FontIconSetting.Light:
+                    SelectedFontColor = LightFontColor;
+                    break;
+                case FontIconSetting.Dark:
+                    SelectedFontColor = DarkFontColor;
+                    break;
+            }
+        }
+    }
+    Color DarkFontColor = new("383838");
+    Color LightFontColor = new("cdcfd2");
+    Color SelectedFontColor;
 
+    [Export]
+    Color BaseColor = new("3D3D3D");
+    [Export]
+    Color AccentColor = new("b8e3ff");
+    [Export(PropertyHint.Range, "-1, 1, 0.01")]
+    float Contrast = 0.2f;
+    [Export(PropertyHint.Range, "0, 2, 0.01")]
+    float IconSaturation = 1.0f;
+    [Export(PropertyHint.Range, "0, 1, 0.01")]
+    float RelationshipLineOpacity = 0.1f;
+    [Export(PropertyHint.Range, "0, 2, 1")]
+    int BorderSize = 0;
+    [Export(PropertyHint.Range, "0, 6, 1")]
+    int CornerRadius = 3;
+    [Export(PropertyHint.Range, "0, 5, 0.1")]
+    float AdditionalSpacing = 0.0f;
+    [Export]
+    int TabContentMargin = 3;
+
+    // Derived colors
+    Color SecondaryColor;
+    Color TertiaryColor;
+    Color HoverColor;
+    Color BorderColor;
+    Color HighlightColor;
+    Color HighlightColorContrast;
+    Color TooltipPanelColor = new("e6ffffff");
+
+    // Font Colors
+    Color DisabledFontColor = new("#4dffffff"); // Default is #4dffffff
+    Color HoverFontColor = new("e2e2e2");// Default is #e2e2e2
+    Color PressedFontColor = new("b8e3ff");// Default is #b8e3ff
+    Color SelectFontColor = new("ffffff");
+    Color TooltipFontColor = new("303030");
+    Color TooltipFontShadowColor = new("1a000000");
+
+    // Icon Colors
+    Color HoverIconColor = new(0, 0, 0, 1); // Default is 293,293,293,255 (16 bit color?)
+    Color PressedIconColor = new(0, 0, 0, 1);// Default is 211, 261, 293, 255
+    Color FolderIconMod = new("cdebff");
+
+    // Theme styleboxes
+    StyleBoxFlat BackgroundStyle;// Default color is #313131
+    StyleBoxFlat MidgroundStyle; // Default color is #373737
+    StyleBoxFlat ForegroundStyle;// Default color is #3D3D3D
+    StyleBoxFlat BackgroundStyleBorderless;
+    StyleBoxFlat MidgroundStyleBorderless;
+    StyleBoxFlat ForegroundStyleBorderless;
+    StyleBoxFlat FocusBackground;
+    StyleBoxFlat FocusMidground;
+    StyleBoxFlat FocusForeground;
+    StyleBoxLine SeparatorStyle;// Default color is #1affffff (first byte is alpha)
+    StyleBoxFlat HighlightStyle;// Default color is #6e6e6e
+    StyleBoxFlat HighlightContrastStyle;// Default color is #252525
+    StyleBoxFlat ItemSelectedStyle;// Default color is #33ffffff
+    StyleBoxFlat ToolTipStyle;// Default color is #e6ffffff
+
+    StyleBoxFlat ButtonDisabledStyle;// Default Midground
+    // Rest of buttons are background
+    StyleBoxFlat ButtonFocusStyle;
+    StyleBoxFlat ButtonHoverStyle;
+    StyleBoxFlat ButtonNormalStyle;
+    StyleBoxFlat ButtonPressedStyle;
+
+    StyleBoxFlat TabStylePanel;
+    StyleBoxFlat TabStyleBg;
+    StyleBoxFlat TabStyleDis;
+    StyleBoxFlat TabStyleFg;
+    StyleBoxFlat WindowDialogPanelStyle;
 
     public AutoTheme()
     {
@@ -75,10 +118,193 @@ public class AutoTheme : Theme
         // On every file load? 
         // Are there virtual resource functions I can use
         // like OnSave and OnLoad? 
+        IconAndFontColor = IconAndFontColor;
     }
 
     // There is the Changed() signal, which I can call and use
     // To update on changes
+
+    protected void GenerateColors()
+    {
+        // Create derived colors based on contrast settings
+        if (Contrast == 0)
+        {
+            SecondaryColor = BaseColor;
+            TertiaryColor = BaseColor;
+            HoverColor = BaseColor.Lightened(0.1f);
+            BorderColor = TertiaryColor.Darkened(0.1f);
+            HighlightColor = BaseColor.Lightened(0.2f);
+            HighlightColorContrast = BaseColor.Darkened(0.2f);
+        }
+        else if (Contrast > 0)
+        {
+            SecondaryColor = BaseColor.Darkened(Contrast / 2);
+            TertiaryColor = BaseColor.Darkened(Contrast);
+            HoverColor = BaseColor.Lightened(0.1f);
+            BorderColor = TertiaryColor.Darkened(0.1f);
+            HighlightColor = BaseColor.Lightened(0.2f);
+            HighlightColorContrast = BaseColor.Darkened(0.2f);
+        }
+        else if (Contrast < 0)
+        {
+            float absContrast = Godot.Mathf.Abs(Contrast);
+            SecondaryColor = BaseColor.Lightened(absContrast / 2);
+            TertiaryColor = BaseColor.Lightened(absContrast);
+            BorderColor = BaseColor.Darkened(0.1f);
+            HighlightColor = BaseColor.Darkened(0.2f);
+            HighlightColorContrast = BaseColor.Lightened(0.2f);
+        }
+        HoverColor.s -= 0.1f;
+        HighlightColor.a = 0.2f;
+        HighlightColor.s -= 0.3f;
+        HighlightColorContrast.s -= 0.1f;
+
+        // Make sure derived font colors follow global setting
+        if (IconAndFontColor == FontIconSetting.Light)
+        {
+            DisabledFontColor = new Color(1, 1, 1, 0.3f);
+            HoverFontColor = new Color(SelectedFontColor);
+            HoverFontColor.Lightened(0.1f);
+            SelectFontColor = new Color(1, 1, 1);
+            // Tooltip should oppose whatever the main color level is
+            TooltipFontColor = DarkFontColor;
+            TooltipPanelColor = HighlightColorContrast.Contrasted();
+        }
+        else if (IconAndFontColor == FontIconSetting.Dark)
+        {
+            DisabledFontColor = new Color(0, 0, 0, 0.3f);
+            HoverFontColor = new Color(SelectedFontColor);
+            HoverFontColor.Darkened(0.1f);
+            SelectFontColor = new Color(0, 0, 0);
+            // Tooltip should oppose whatever the main color level is
+            TooltipFontColor = LightFontColor;
+            TooltipPanelColor = HighlightColorContrast.Contrasted();
+        }
+
+        // When clicking on buttons, will make the font
+        // a color brighter or darker than the accent color
+        // depending on the accent color's brightness.
+        PressedFontColor = new Color(AccentColor);
+        if ((PressedFontColor.r + PressedFontColor.g + PressedFontColor.b) >= 1.5f)
+        {
+            PressedFontColor.Darkened(0.2f);
+        }
+        else
+        {
+            PressedFontColor.Lightened(0.2f);
+        }
+
+    }
+
+    public StyleBoxFlat StyleBoxFlatBuilder(Color bgColor)
+    {
+        StyleBoxFlat newStyle = new();
+        newStyle.BgColor = bgColor;
+        newStyle.DrawCenter = true;
+        newStyle.CornerDetail = 8;
+        newStyle.SetBorderWidthAll(BorderSize);
+        newStyle.BorderColor = BorderColor;
+        newStyle.BorderBlend = false;
+        newStyle.SetCornerRadiusAll(CornerRadius);
+        newStyle.SetExpandMarginAll(AdditionalSpacing);
+        newStyle.ShadowColor = new Color(0, 0, 0, 0);
+        newStyle.ShadowSize = 0;
+        newStyle.ShadowOffset = new Vector2(0, 0);
+        newStyle.AntiAliasing = true;
+        newStyle.AntiAliasingSize = 1;
+        newStyle.SetContentMarginAll(AdditionalSpacing);
+
+        return newStyle;
+    }
+
+    public StyleBoxFlat StyleBoxFlatBuilder(Color bgColor, Color BorderColor, int BorderSize)
+    {
+        StyleBoxFlat newStyle = new();
+        newStyle.BgColor = bgColor;
+        newStyle.DrawCenter = true;
+        newStyle.CornerDetail = 8;
+        newStyle.SetBorderWidthAll(BorderSize);
+        newStyle.BorderColor = BorderColor;
+        newStyle.BorderBlend = false;
+        newStyle.SetCornerRadiusAll(CornerRadius);
+        newStyle.SetExpandMarginAll(AdditionalSpacing);
+        newStyle.ShadowColor = new Color(0, 0, 0, 0);
+        newStyle.ShadowSize = 0;
+        newStyle.ShadowOffset = new Vector2(0, 0);
+        newStyle.AntiAliasing = true;
+        newStyle.AntiAliasingSize = 1;
+        newStyle.SetContentMarginAll(AdditionalSpacing);
+
+        return newStyle;
+    }
+
+    protected void GenerateStyles()
+    {
+        if (Contrast >= 0)
+        {
+            ForegroundStyle = StyleBoxFlatBuilder(BaseColor);
+            MidgroundStyle = StyleBoxFlatBuilder(SecondaryColor);
+            BackgroundStyle = StyleBoxFlatBuilder(TertiaryColor);
+        }
+        else
+        {
+            ForegroundStyle = StyleBoxFlatBuilder(TertiaryColor);
+            MidgroundStyle = StyleBoxFlatBuilder(SecondaryColor);
+            BackgroundStyle = StyleBoxFlatBuilder(BaseColor);
+        }
+
+        BackgroundStyleBorderless = (BackgroundStyle.Duplicate() as StyleBoxFlat)!;
+        BackgroundStyleBorderless.SetBorderWidthAll(0);
+        MidgroundStyleBorderless = (MidgroundStyle.Duplicate() as StyleBoxFlat)!;
+        MidgroundStyleBorderless.SetBorderWidthAll(0);
+        ForegroundStyleBorderless = (ForegroundStyle.Duplicate() as StyleBoxFlat)!;
+        ForegroundStyleBorderless.SetBorderWidthAll(0);
+
+        FocusBackground = (BackgroundStyle.Duplicate() as StyleBoxFlat)!;
+        FocusBackground.SetBorderWidthAll(2);
+        FocusBackground.BorderColor = AccentColor;
+        FocusMidground = (MidgroundStyle.Duplicate() as StyleBoxFlat)!;
+        FocusMidground.SetBorderWidthAll(2);
+        FocusMidground.BorderColor = AccentColor;
+        FocusForeground = (ForegroundStyle.Duplicate() as StyleBoxFlat)!;
+        FocusForeground.SetBorderWidthAll(2);
+        FocusForeground.BorderColor = AccentColor;
+
+        SeparatorStyle = new StyleBoxLine();
+        SeparatorStyle.Color = DisabledFontColor;
+
+        HighlightStyle = (ForegroundStyle.Duplicate() as StyleBoxFlat)!;
+        HighlightStyle.BgColor = HighlightColor;
+        HighlightContrastStyle = (BackgroundStyle.Duplicate() as StyleBoxFlat)!;
+        HighlightContrastStyle.BgColor = HighlightColorContrast;
+
+        ItemSelectedStyle = (BackgroundStyleBorderless.Duplicate() as StyleBoxFlat)!;
+        Color ItemSelectedColor = new Color(SelectedFontColor);
+        ItemSelectedStyle.BgColor = ItemSelectedColor;
+        ToolTipStyle = StyleBoxFlatBuilder(TooltipPanelColor);
+
+        ButtonDisabledStyle = ForegroundStyle;
+        ButtonFocusStyle = FocusMidground;
+        ButtonHoverStyle = StyleBoxFlatBuilder(HoverColor);
+        ButtonNormalStyle = MidgroundStyle;
+        ButtonPressedStyle = FocusBackground;
+
+        TabStylePanel = (ForegroundStyle.Duplicate() as StyleBoxFlat)!;
+        TabStylePanel.SetContentMarginAll(TabContentMargin);
+
+        TabStyleBg = (BackgroundStyle.Duplicate() as StyleBoxFlat)!;
+        TabStyleDis = (MidgroundStyle.Duplicate() as StyleBoxFlat)!;
+        TabStyleFg = (ForegroundStyle.Duplicate() as StyleBoxFlat)!;
+        TabStyleBg.Tabify(AdditionalSpacing);
+        TabStyleDis.Tabify(AdditionalSpacing);
+        TabStyleFg.Tabify(AdditionalSpacing);
+
+        WindowDialogPanelStyle = (ForegroundStyle.Duplicate() as StyleBoxFlat) ?? new StyleBoxFlat();
+        WindowDialogPanelStyle.BorderWidthTop = 24;
+        WindowDialogPanelStyle.ExpandMarginTop = 24;
+        WindowDialogPanelStyle.ShadowSize = 4;
+        WindowDialogPanelStyle.SetContentMarginAll(8);
+    }
 
     public void ApplyChanges()
     {
@@ -98,345 +324,539 @@ public class AutoTheme : Theme
             styleboxes and colors
         */
 
-        // Box Container
-        // --
-        // Button
-        SetColor("font_color", "Button", PrimaryFontColor);
-        SetColor("font_color_disabled", "Button", DisabledFontColor);
-        SetColor("font_color_hover", "Button", HoverFontColor);
-        SetColor("font_color_pressed", "Button", PressedFontColor);
-        // SetColor("icon_color_hover", "Button", HoverIconColor);
-        // SetColor("icon_color_pressed", "Button", PressedIconColor);
-        SetStylebox("disabled", "Button", MidgroundStyle);
-        SetStylebox("focus", "Button", BackgroundStyle);
-        SetStylebox("hover", "Button", BackgroundStyle);
-        SetStylebox("normal", "Button", BackgroundStyle);
-        SetStylebox("pressed", "Button", BackgroundStyle);
+        GenerateColors();
+        GenerateStyles();
 
-        // Check Box
-        SetColor("font_color", "CheckBox", PrimaryFontColor);
-        SetColor("font_color_disabled", "CheckBox", DisabledFontColor);
-        SetColor("font_color_hover", "CheckBox", HoverFontColor);
-        SetColor("font_color_pressed", "CheckBox", PressedFontColor);
-        // SetColor("icon_color_hover", "CheckBox", HoverIconColor);
-        // Icons need to be manual? 
-        SetStylebox("disabled", "CheckBox", BackgroundStyle);
-        SetStylebox("hover", "CheckBox", BackgroundStyle);
-        SetStylebox("normal", "CheckBox", BackgroundStyle);
-        SetStylebox("pressed", "CheckBox", BackgroundStyle);
+        SetBoxContainer();
+        SetButton();
+        SetCheckBox();
+        SetCheckButton();
+        SetColorPicker();
+        SetColorPickerButton();
 
-        // Check Button
-        SetColor("font_color", "CheckButton", PrimaryFontColor);
-        SetColor("font_color_disabled", "CheckButton", DisabledFontColor);
-        SetColor("font_color_hover", "CheckButton", HoverFontColor);
-        SetColor("font_color_pressed", "CheckButton", PressedFontColor);
-        // SetColor("icon_color_hover", "CheckButton", HoverIconColor);
-        // Icons need to be manual? 
-        SetStylebox("disabled", "CheckButton", BackgroundStyle);
-        SetStylebox("hover", "CheckButton", BackgroundStyle);
-        SetStylebox("normal", "CheckButton", BackgroundStyle);
-        SetStylebox("pressed", "CheckButton", BackgroundStyle);
+        SetEditor();
+        SetEditorAbout();
+        SetEditorFonts();
+        SetEditorHelp();
+        SetEditorIcons();
+        SetEditorSettingsDialog();
+        SetEditorStyles();
 
-        // Color Picker
-        // --
-        // Color Picker Button
-        // --
-        // Editor - The editor specific stuff is probably not needed.
-        // --
-        // Editor About
-        // --
-        // Editor Fonts
-        // --
-        // Editor Help
-        // --
-        // Editor Icons
-        // --
-        // Editor Settings Dialog
-        // --
-        // Editor Styles
-        // --
-        // File Dialog
-        SetColor("files_disabled", "FileDialog", DisabledFontColor);
-        SetColor("folder_icon_mod", "FileDialog", FolderIconMod);
+        SetFileDialog();
+        SetGraphEdit();
+        SetGraphNode();
 
-        // Graph Edit
-        // Leaving the colors for now
-        SetStylebox("bg", "GraphEdit", BackgroundStyle);
+        SetGridContainer();
+        SetHBoxContainer();
+        SetHScrollBar();
+        SetHSeparator();
+        SetHSlider();
+        SetHSplitContainer();
 
-        // Graph Node
-        // This one is complicated, manually edit as needed for now
+        SetItemList();
 
-        // Grid Container
-        // --
-        // H Box Container
-        // --
-        // H Scroll Bar
-        // Uses textues for icons, revisist later
+        SetLabel();
+        SetLineEdit();
+        SetLinkButton();
+        SetMarginContainer();
+        SetMenuButton();
+        SetOptionButton();
 
-        // H Separator
-        SetStylebox("separator", "HSeparator", SeparatorStyle);
+        // Need to move the BorderlessBackgroundStyle
+        SetPanel();
+        SetPanelContainer();
 
-        // H Slider
-        // Also has icons
-        SetStylebox("grabber_area", "HSlider", HighlightStyle);
-        SetStylebox("grabber_area_highlight", "HSlider", HighlightStyle);
-        SetStylebox("slider", "HSlider", HighlightContrastStyle);
+        SetPopupDialog();
+        SetPopupMenu();
+        SetPopupPanel();
 
-        // H Split Container
-        // Uses textures also
-        // Can probably use color modulation for controls like this
+        SetProgressBar();
+        SetProjectSettingsEditor();
 
-        // Item List
-        SetColor("font_color", "ItemList", PrimaryFontColor);
-        SetColor("font_color_select", "ItemList", SelectFontColor);
-        //SetColor("guide_color", "ItemList", --);
-        SetStylebox("bg", "ItemList", BackgroundStyle);
-        SetStylebox("bg_focus", "ItemList", ForegroundStyle);
-        SetStylebox("cursor", "ItemList", ForegroundStyle);
-        SetStylebox("cursor_unfocused", "ItemList", ForegroundStyle);
-        SetStylebox("selected", "ItemList", ItemSelectedStyle);
-        SetStylebox("selected_focus", "ItemList", ItemSelectedStyle);
+        SetRichTextLabel();
+        SetSpinBox();
 
-        // Label
-        SetColor("font_color", "Label", PrimaryFontColor);
-        //SetColor("font_color_shadow", "Label", PrimaryFontColor);
-        //SetStyleBox("normal", "Label", <emptystylebox>);
+        SetTabContainer();
+        SetTabs();
 
-        // Line Edit
-        SetColor("clear_button_color", "LineEdit", PrimaryFontColor);
-        SetColor("clear_button_color_pressed", "LineEdit", PressedFontColor);
-        SetColor("cursor_color", "LineEdit", PrimaryFontColor);
-        SetColor("font_color", "LineEdit", PrimaryFontColor);
-        SetColor("font_color_select", "LineEdit", SelectFontColor);
-        SetColor("read_only", "LineEdit", DisabledFontColor);
-        SetColor("selection_color", "LineEdit", new Color("66b8e3ff"));
-        SetColor("font_color_uneditable", "LineEdit", DisabledFontColor);
-        SetStylebox("focus", "LineEdit", BackgroundStyle);
-        SetStylebox("normal", "LineEdit", BackgroundStyle);
-        SetStylebox("read_only", "LineEdit", MidgroundStyle);
+        SetTextEdit();
+        SetToolButton();
+        SetTooltipLabel();
+        SetTooltipPanel();
 
-        // Link Button
-        SetColor("font_color", "LinkButton", PrimaryFontColor);
-        SetColor("font_color_disabled", "LinkButton", DisabledFontColor);
-        SetColor("font_color_hover", "LinkButton", HoverFontColor);
-        SetColor("font_color_pressed", "LinkButton", PressedFontColor);
+        SetTree();
 
-        // Margin Container
-        // --
+        SetVBoxContainer();
+        SetVSCrollBar();
+        SetVSeparator();
+        SetVSlider();
+        SetVSplitContainer();
 
-        // Menu Button
-        SetColor("font_color", "MenuButton", PrimaryFontColor);
-        SetColor("font_color_hover", "MenuButton", HoverFontColor);
-        SetStylebox("disabled", "MenuButton", BackgroundStyle);
-        SetStylebox("focus", "MenuButton", BackgroundStyle);
-        SetStylebox("hover", "MenuButton", BackgroundStyle);
-        SetStylebox("normal", "MenuButton", BackgroundStyle);
-        SetStylebox("pressed", "MenuButton", BackgroundStyle);
-
-        // Option Button
-        SetColor("font_color", "OptionButton", PrimaryFontColor);
-        SetColor("font_color_disabled", "OptionButton", DisabledFontColor);
-        SetColor("font_color_hover", "OptionButton", HoverFontColor);
-        SetColor("font_color_pressed", "OptionButton", PressedFontColor);
-        SetStylebox("disabled", "MenuButton", MidgroundStyle);
-        SetStylebox("focus", "MenuButton", BackgroundStyle);
-        SetStylebox("hover", "MenuButton", BackgroundStyle);
-        SetStylebox("normal", "MenuButton", BackgroundStyle);
-        SetStylebox("pressed", "MenuButton", BackgroundStyle);
-
-        // Panel
-        StyleBoxFlat BorderlessBackgroundStyle = BackgroundStyle.Duplicate() as StyleBoxFlat ?? new StyleBoxFlat();
-        BorderlessBackgroundStyle.Set("border_width_left", 0);
-        BorderlessBackgroundStyle.Set("border_width_top", 0);
-        BorderlessBackgroundStyle.Set("border_width_right", 0);
-        BorderlessBackgroundStyle.Set("border_width_bottom", 0);
-        SetStylebox("panel", "Panel", BorderlessBackgroundStyle);
-
-        // Panel Container
-        SetStylebox("panel", "PanelContainer", BorderlessBackgroundStyle);
-
-        // Popup Dialog
-        SetStylebox("panel", "PopupDialog", ForegroundStyle);
-
-        // Popup Menu
-        SetColor("font_color", "PopupMenu", PrimaryFontColor);
-        SetColor("font_color_disabled", "PopupMenu", DisabledFontColor);
-        SetColor("font_color_hover", "PopupMenu", HoverFontColor);
-        SetColor("font_color_accel", "PopupMenu", DisabledFontColor);
-        SetStylebox("disabled", "PopupMenu", BorderlessBackgroundStyle);
-        SetStylebox("focus", "PopupMenu", BorderlessBackgroundStyle);
-        SetStylebox("hover", "PopupMenu", BorderlessBackgroundStyle);
-        SetStylebox("labeled_separator_left", "PopupMenu", SeparatorStyle);
-        SetStylebox("labeled_separator_right", "PopupMenu", SeparatorStyle);
-        SetStylebox("normal", "PopupMenu", BorderlessBackgroundStyle);
-        SetStylebox("panel", "PopupMenu", ForegroundStyle);
-        SetStylebox("pressed", "PopupMenu", BorderlessBackgroundStyle);
-        SetStylebox("separator", "PopupMenu", SeparatorStyle);
-
-        // Popup Panel
-        SetStylebox("panel", "PopupPanel", ForegroundStyle);
-
-        // Progress Bar
-        SetColor("font_color", "ProgressBar", PrimaryFontColor);
-
-        // Project Settings Editor
-        // Passing for now
-
-        // Rich Text Label
-        SetColor("default_color", "RichTextLabel", PrimaryFontColor);
-        SetStylebox("normal", "RichTextLabel", BackgroundStyle);
-
-        // Spin Box
-        // Only has icon
-
-        // Tab Container
-        SetColor("font_color_bg", "TabContainer", DisabledFontColor);
-        SetColor("font_color_fg", "TabContainer", PrimaryFontColor);
-        SetStylebox("panel", "TabContainer", ForegroundStyle);
-
-        // All the bottom borders need to be zero
-        StyleBoxFlat TabStyleBg = (BackgroundStyle.Duplicate() as StyleBoxFlat) ?? new StyleBoxFlat();
-        TabifyStyle(ref TabStyleBg);
-        SetStylebox("tab_bg", "TabContainer", TabStyleBg);
-
-        StyleBoxFlat TabStyleDis = (MidgroundStyle.Duplicate() as StyleBoxFlat) ?? new StyleBoxFlat();
-        TabifyStyle(ref TabStyleDis);
-        SetStylebox("tab_disabled", "TabContainer", TabStyleDis);
-
-        StyleBoxFlat TabStyleFg = (ForegroundStyle.Duplicate() as StyleBoxFlat) ?? new StyleBoxFlat();
-        TabifyStyle(ref TabStyleFg);
-        SetStylebox("tab_fg", "TabContainer", TabStyleFg);
-
-        void TabifyStyle(ref StyleBoxFlat target)
-        {
-            target.Set("border_width_bottom", 0);
-            target.Set("content_margin_left", 10);
-            target.Set("content_margin_right", 10);
-            target.Set("content_margin_top", 5);
-            target.Set("content_margin_bottom", 5);
-            target.Set("expand_margin_bottom", 1);
-        }
-
-        // Tabs
-        SetColor("font_color_bg", "Tabs", DisabledFontColor);
-        SetColor("font_color_fg", "Tabs", PrimaryFontColor);
-        SetStylebox("button", "Tabs", BackgroundStyle);
-        SetStylebox("button_pressed", "Tabs", BackgroundStyle);
-        SetStylebox("tab_bg", "Tabs", TabStyleBg);
-        SetStylebox("tab_disabled", "Tabs", TabStyleDis);
-        SetStylebox("tab_fg", "Tabs", TabStyleFg);
-
-        // Text Edit
-        SetColor("caret_color", "TextEdit", PrimaryFontColor);
-        SetColor("font_color", "TextEdit", PrimaryFontColor);
-        //SetColor("selection_color", "TextEdit", PrimaryFontColor);
-        SetStylebox("focus", "TextEdit", BackgroundStyle);
-        SetStylebox("normal", "TextEdit", BackgroundStyle);
-        SetStylebox("read_only", "TextEdit", MidgroundStyle);
-
-        // Tool Button
-        SetColor("font_color", "ToolButton", PrimaryFontColor);
-        SetColor("font_color_hover", "ToolButton", HoverFontColor);
-        SetColor("font_color_pressed", "ToolButton", PressedFontColor);
-        SetStylebox("disabled", "ToolButton", BorderlessBackgroundStyle);
-        SetStylebox("focus", "ToolButton", BorderlessBackgroundStyle);
-        SetStylebox("hover", "ToolButton", BorderlessBackgroundStyle);
-        SetStylebox("normal", "ToolButton", BorderlessBackgroundStyle);
-        SetStylebox("pressed", "ToolButton", BorderlessBackgroundStyle);
-
-        // Tooltip Label
-        SetColor("font_color", "TooltipLabel", TooltipFontColor);
-        SetColor("font_color_shadow", "TooltipLabel", TooltipFontShadowColor);
-
-        // Tooltip Panel
-        SetStylebox("panel", "TooltipPanel", ToolTipStyle);
-
-        // Tree
-        SetColor("custom_button_font_highlight", "Tree", HoverFontColor);
-        SetColor("drop_position_color", "Tree", PressedFontColor);
-        SetColor("font_color", "Tree", PrimaryFontColor);
-        SetColor("font_color_selected", "Tree", SelectFontColor);
-        Color lineColor = new Color(SelectFontColor);
-        lineColor.a = 0.05f;
-        SetColor("guide_color", "Tree", lineColor);
-        lineColor = new Color(SelectFontColor);
-        lineColor.a = 0.1f;
-        SetColor("relationship_line_color", "Tree", lineColor);
-        SetColor("title_button_color", "Tree", PrimaryFontColor);
-        SetStylebox("bg", "Tree", BackgroundStyle);
-        SetStylebox("bg_focus", "Tree", ForegroundStyle);
-        SetStylebox("button_pressed", "Tree", HighlightStyle);
-        SetStylebox("cursor", "Tree", ForegroundStyle);
-        SetStylebox("cursor_unfocused", "Tree", ForegroundStyle);
-        SetStylebox("custom_button", "Tree", new StyleBoxEmpty());
-        SetStylebox("custom_button_hover", "Tree", BackgroundStyle);
-        SetStylebox("custom_button_pressed", "Tree", new StyleBoxEmpty());
-        //SetStylebox("hover", "Tree", ); // Doesn't have a standard stylebox
-        //SetStylebox("selected", "Tree", ); // Also non-standard stylebox
-        // SetStylebox("selected_focus", "Tree", ); // non-standard stylebox
-        SetStylebox("title_button_hover", "Tree", HighlightContrastStyle);
-        SetStylebox("title_button_normal", "Tree", HighlightContrastStyle);
-        SetStylebox("title_button_pressed", "Tree", HighlightContrastStyle);
-
-        // V Box Container
-        // --
-        // V SCroll Bar
-        // --
-        // V Separator
-        SetStylebox("separator", "VSeparator", SeparatorStyle);
-
-        // V Slider
-        SetStylebox("grabber_area", "VSlider", HighlightStyle);
-        SetStylebox("grabber_area_highlight", "VSlider", HighlightStyle);
-        SetStylebox("slider", "VSlider", HighlightContrastStyle);
-
-        // V Split Container
-        // --
-        // Window Dialog
-        SetColor("title_color", "WindowDialog", PrimaryFontColor);
-        StyleBoxFlat WindowDialogPanelStyle = (ForegroundStyle.Duplicate() as StyleBoxFlat) ?? new StyleBoxFlat();
-        WindowDialogPanelStyle.Set("border_width_top", 24);
-        WindowDialogPanelStyle.Set("expand_margin_top", 24);
-        WindowDialogPanelStyle.Set("shadow_size", 4);
-        WindowDialogPanelStyle.Set("content_margin_left", 8);
-        WindowDialogPanelStyle.Set("content_margin_right", 8);
-        WindowDialogPanelStyle.Set("content_margin_top", 8);
-        WindowDialogPanelStyle.Set("content_margin_bottom", 8);
-        SetStylebox("panel", "WindowDialog", WindowDialogPanelStyle);
+        SetWindowDialog();
 
         // Place custom after the fact...
     }
 
-    public StyleBoxFlat CopyStyleBoxFlat(StyleBoxFlat source)
-    {
-        StyleBoxFlat target = new();
-        target.Set("bg_color", source.Get("bg_color"));
-        target.Set("draw_center", source.Get("draw_center"));
-        target.Set("corner_detail", source.Get("corner_detail"));
-        target.Set("border_width_left", source.Get("border_width_left"));
-        target.Set("border_width_top", source.Get("border_width_top"));
-        target.Set("border_width_right", source.Get("border_width_right"));
-        target.Set("border_width_bottom", source.Get("border_width_bottom"));
-        target.Set("border_color", source.Get("border_color"));
-        target.Set("border_blend", source.Get("border_blend"));
-        target.Set("corner_radius_top_left", source.Get("corner_radius_top_left"));
-        target.Set("corner_radius_top_right", source.Get("corner_radius_top_right"));
-        target.Set("corner_radius_bottom_right", ForegroundStyle.Get("corner_radius_bottom_right"));
-        target.Set("corner_radius_bottom_left", source.Get("corner_radius_bottom_left"));
-        target.Set("expand_margin_left", source.Get("expand_margin_left"));
-        target.Set("expand_margin_right", source.Get("expand_margin_right"));
-        target.Set("expand_margin_top", source.Get("expand_margin_top"));
-        target.Set("expand_margin_bottom", source.Get("expand_margin_bottom"));
-        target.Set("shadow_color", source.Get("shadow_color"));
-        target.Set("shadow_size", source.Get("shadow_size"));
-        target.Set("shadow_offset", source.Get("shadow_offset"));
-        target.Set("anti_aliasing", source.Get("anti_aliasing"));
-        target.Set("anti_aliasing_size", source.Get("anti_aliasing_size"));
-        target.Set("content_margin_left", source.Get("content_margin_left"));
-        target.Set("content_margin_right", source.Get("content_margin_right"));
-        target.Set("content_margin_top", source.Get("content_margin_top"));
-        target.Set("content_margin_bottom", source.Get("content_margin_bottom"));
+    // protected void Set()
+    // {
+    //     string ControlName = "";
+    // }
 
-        return target;
+    protected void SetBoxContainer()
+    {
+        string ControlName = "BoxContainer";
+    }
+
+    protected void SetButton()
+    {
+        string ControlName = "Button";
+        // Button
+        SetColor("font_color", ControlName, SelectedFontColor);
+        SetColor("font_color_disabled", ControlName, DisabledFontColor);
+        SetColor("font_color_hover", ControlName, HoverFontColor);
+        SetColor("font_color_pressed", ControlName, PressedFontColor);
+        // SetColor("icon_color_hover", ControlName, HoverIconColor);
+        // SetColor("icon_color_pressed", ControlName, PressedIconColor);
+        SetStylebox("disabled", ControlName, ButtonDisabledStyle);
+        SetStylebox("focus", ControlName, ButtonFocusStyle);
+        SetStylebox("hover", ControlName, ButtonHoverStyle);
+        SetStylebox("normal", ControlName, ButtonNormalStyle);
+        SetStylebox("pressed", ControlName, ButtonPressedStyle);
+    }
+
+    protected void SetCheckBox()
+    {
+        string ControlName = "CheckBox";
+        // Check Box
+        SetColor("font_color", ControlName, SelectedFontColor);
+        SetColor("font_color_disabled", ControlName, DisabledFontColor);
+        SetColor("font_color_hover", ControlName, HoverFontColor);
+        SetColor("font_color_pressed", ControlName, PressedFontColor);
+        // SetColor("icon_color_hover", ControlName, HoverIconColor);
+        // Icons need to be manual? 
+        SetStylebox("disabled", ControlName, BackgroundStyle);
+        SetStylebox("hover", ControlName, BackgroundStyle);
+        SetStylebox("normal", ControlName, BackgroundStyle);
+        SetStylebox("pressed", ControlName, BackgroundStyle);
+    }
+
+    protected void SetCheckButton()
+    {
+        string ControlName = "CheckButton";
+        // Check Button
+        SetColor("font_color", ControlName, SelectedFontColor);
+        SetColor("font_color_disabled", ControlName, DisabledFontColor);
+        SetColor("font_color_hover", ControlName, HoverFontColor);
+        SetColor("font_color_pressed", ControlName, PressedFontColor);
+        // SetColor("icon_color_hover", ControlName, HoverIconColor);
+        // Icons need to be manual? 
+        SetStylebox("disabled", ControlName, BackgroundStyle);
+        SetStylebox("hover", ControlName, BackgroundStyle);
+        SetStylebox("normal", ControlName, BackgroundStyle);
+        SetStylebox("pressed", ControlName, BackgroundStyle);
+    }
+
+    protected void SetColorPicker()
+    {
+        string ControlName = "ColorPicker";
+    }
+
+    protected void SetColorPickerButton()
+    {
+        string ControlName = "ColorPickerButton";
+    }
+
+    protected void SetEditor()
+    {
+        string ControlName = "Editor";
+    }
+
+    protected void SetEditorAbout()
+    {
+        string ControlName = "EditorAbout";
+    }
+
+    protected void SetEditorFonts()
+    {
+        string ControlName = "EditorFonts";
+    }
+
+    protected void SetEditorHelp()
+    {
+        string ControlName = "EditorHelp";
+    }
+
+    protected void SetEditorIcons()
+    {
+        string ControlName = "EditorIcons";
+    }
+
+    protected void SetEditorSettingsDialog()
+    {
+        string ControlName = "EditorSettingsDialog";
+    }
+
+    protected void SetEditorStyles()
+    {
+        string ControlName = "EditorStyles";
+    }
+
+    protected void SetFileDialog()
+    {
+        string ControlName = "FileDialog";
+        // File Dialog
+        SetColor("files_disabled", ControlName, DisabledFontColor);
+        SetColor("folder_icon_mod", ControlName, FolderIconMod);
+    }
+
+    protected void SetGraphEdit()
+    {
+        string ControlName = "GraphEdit";
+        // Graph Edit
+        // Leaving the colors for now
+        SetStylebox("bg", ControlName, BackgroundStyle);
+    }
+
+    protected void SetGraphNode()
+    {
+        string ControlName = "GraphNode";
+        // Graph Node
+        // This one is complicated, manually edit as needed for now
+    }
+    protected void SetGridContainer()
+    {
+        string ControlName = "GridContainer";
+    }
+    protected void SetHBoxContainer()
+    {
+        string ControlName = "HBoxContainer";
+    }
+    protected void SetHScrollBar()
+    {
+        string ControlName = "HScrollBar";
+        // H Scroll Bar
+        // Uses textues for icons, revisist later
+    }
+    protected void SetHSeparator()
+    {
+        string ControlName = "HSeparator";
+        // H Separator
+        SetStylebox("separator", ControlName, SeparatorStyle);
+    }
+    protected void SetHSlider()
+    {
+        string ControlName = "HSlider";
+        // H Slider
+        // Also has icons
+        SetStylebox("grabber_area", ControlName, HighlightStyle);
+        SetStylebox("grabber_area_highlight", ControlName, HighlightStyle);
+        SetStylebox("slider", ControlName, HighlightContrastStyle);
+    }
+    protected void SetHSplitContainer()
+    {
+        string ControlName = "HSplitContainer";
+        // H Split Container
+        // Uses textures also
+        // Can probably use color modulation for controls like this
+    }
+    protected void SetItemList()
+    {
+        string ControlName = "ItemList";
+        // Item List
+        SetColor("font_color", ControlName, SelectedFontColor);
+        SetColor("font_color_select", ControlName, SelectFontColor);
+        //SetColor("guide_color", ControlName, --);
+        SetStylebox("bg", ControlName, BackgroundStyle);
+        SetStylebox("bg_focus", ControlName, ForegroundStyle);
+        SetStylebox("cursor", ControlName, ForegroundStyle);
+        SetStylebox("cursor_unfocused", ControlName, ForegroundStyle);
+        SetStylebox("selected", ControlName, ItemSelectedStyle);
+        SetStylebox("selected_focus", ControlName, ItemSelectedStyle);
+    }
+    protected void SetLabel()
+    {
+        string ControlName = "Label";
+        // Label
+        SetColor("font_color", ControlName, SelectedFontColor);
+        //SetColor("font_color_shadow", "Label", PrimaryFontColor);
+        //SetStyleBox("normal", "Label", <emptystylebox>);
+    }
+    protected void SetLineEdit()
+    {
+        string ControlName = "LineEdit";
+        // Line Edit
+        SetColor("clear_button_color", ControlName, SelectedFontColor);
+        SetColor("clear_button_color_pressed", ControlName, PressedFontColor);
+        SetColor("cursor_color", ControlName, SelectedFontColor);
+        SetColor("font_color", ControlName, SelectedFontColor);
+        SetColor("font_color_select", ControlName, SelectFontColor);
+        SetColor("read_only", ControlName, DisabledFontColor);
+        SetColor("selection_color", ControlName, new Color("66b8e3ff"));
+        SetColor("font_color_uneditable", ControlName, DisabledFontColor);
+        SetStylebox("focus", ControlName, BackgroundStyle);
+        SetStylebox("normal", ControlName, BackgroundStyle);
+        SetStylebox("read_only", ControlName, MidgroundStyle);
+    }
+    protected void SetLinkButton()
+    {
+        string ControlName = "LinkButton";
+        // Link Button
+        SetColor("font_color", ControlName, SelectedFontColor);
+        SetColor("font_color_disabled", ControlName, DisabledFontColor);
+        SetColor("font_color_hover", ControlName, HoverFontColor);
+        SetColor("font_color_pressed", ControlName, PressedFontColor);
+    }
+    protected void SetMarginContainer()
+    {
+        string ControlName = "MarginContainer";
+    }
+    protected void SetMenuButton()
+    {
+        string ControlName = "MenuButton";
+        // Menu Button
+        SetColor("font_color", ControlName, SelectedFontColor);
+        SetColor("font_color_hover", ControlName, HoverFontColor);
+        SetStylebox("disabled", ControlName, BackgroundStyle);
+        SetStylebox("focus", ControlName, BackgroundStyle);
+        SetStylebox("hover", ControlName, BackgroundStyle);
+        SetStylebox("normal", ControlName, BackgroundStyle);
+        SetStylebox("pressed", ControlName, BackgroundStyle);
+    }
+    protected void SetOptionButton()
+    {
+        string ControlName = "OptionButton";
+        // Option Button
+        SetColor("font_color", ControlName, SelectedFontColor);
+        SetColor("font_color_disabled", ControlName, DisabledFontColor);
+        SetColor("font_color_hover", ControlName, HoverFontColor);
+        SetColor("font_color_pressed", ControlName, PressedFontColor);
+        SetStylebox("disabled", ControlName, MidgroundStyle);
+        SetStylebox("focus", ControlName, BackgroundStyle);
+        SetStylebox("hover", ControlName, BackgroundStyle);
+        SetStylebox("normal", ControlName, BackgroundStyle);
+        SetStylebox("pressed", ControlName, BackgroundStyle);
+    }
+    protected void SetPanel()
+    {
+        string ControlName = "Panel";
+        // Panel
+        SetStylebox("panel", ControlName, BackgroundStyleBorderless);
+    }
+    protected void SetPanelContainer()
+    {
+        string ControlName = "PanelContainer";
+        // Panel Container
+        SetStylebox("panel", ControlName, BackgroundStyleBorderless);
+    }
+    protected void SetPopupDialog()
+    {
+        string ControlName = "PopupDialog";
+        // Popup Dialog
+        SetStylebox("panel", ControlName, ForegroundStyle);
+    }
+    protected void SetPopupMenu()
+    {
+        string ControlName = "PopupMenu";
+        // Popup Menu
+        SetColor("font_color", ControlName, SelectedFontColor);
+        SetColor("font_color_disabled", ControlName, DisabledFontColor);
+        SetColor("font_color_hover", ControlName, HoverFontColor);
+        SetColor("font_color_accel", ControlName, DisabledFontColor);
+        SetStylebox("disabled", ControlName, BackgroundStyleBorderless);
+        SetStylebox("focus", ControlName, BackgroundStyleBorderless);
+        SetStylebox("hover", ControlName, BackgroundStyleBorderless);
+        SetStylebox("labeled_separator_left", ControlName, SeparatorStyle);
+        SetStylebox("labeled_separator_right", ControlName, SeparatorStyle);
+        SetStylebox("normal", ControlName, BackgroundStyleBorderless);
+        SetStylebox("panel", ControlName, ForegroundStyle);
+        SetStylebox("pressed", ControlName, BackgroundStyleBorderless);
+        SetStylebox("separator", ControlName, SeparatorStyle);
+    }
+    protected void SetPopupPanel()
+    {
+        string ControlName = "PopupPanel";
+        // Popup Panel
+        SetStylebox("panel", ControlName, ForegroundStyle);
+    }
+    protected void SetProgressBar()
+    {
+        string ControlName = "ProgressBar";
+        // Progress Bar
+        SetColor("font_color", ControlName, SelectedFontColor);
+    }
+    protected void SetProjectSettingsEditor()
+    {
+        string ControlName = "ProjectSettingsEditor";
+        // Project Settings Editor
+        // Passing for now
+    }
+    protected void SetRichTextLabel()
+    {
+        string ControlName = "RichTextLabel";
+        // Rich Text Label
+        SetColor("default_color", ControlName, SelectedFontColor);
+        SetStylebox("normal", ControlName, BackgroundStyle);
+    }
+    protected void SetSpinBox()
+    {
+        string ControlName = "SpinBox";
+        // Spin Box
+        // Only has icon
+    }
+    protected void SetTabContainer()
+    {
+        string ControlName = "TabContainer";
+        // Tab Container
+        SetColor("font_color_disabled", ControlName, DisabledFontColor);
+        SetColor("font_color_bg", ControlName, DisabledFontColor);
+        SetColor("font_color_fg", ControlName, SelectedFontColor);
+        SetStylebox("panel", ControlName, TabStylePanel);
+        // All the bottom borders need to be zero
+        SetStylebox("tab_bg", ControlName, TabStyleBg);
+        SetStylebox("tab_disabled", ControlName, TabStyleDis);
+        SetStylebox("tab_fg", ControlName, TabStyleFg);
+
+    }
+    protected void SetTabs()
+    {
+        string ControlName = "Tabs";
+        // Tabs
+        SetColor("font_color_disabled", ControlName, DisabledFontColor);
+        SetColor("font_color_bg", ControlName, DisabledFontColor);
+        SetColor("font_color_fg", ControlName, SelectedFontColor);
+        SetStylebox("button", ControlName, BackgroundStyle);
+        SetStylebox("button_pressed", ControlName, BackgroundStyle);
+        SetStylebox("tab_bg", ControlName, TabStyleBg);
+        SetStylebox("tab_disabled", ControlName, TabStyleDis);
+        SetStylebox("tab_fg", ControlName, TabStyleFg);
+    }
+    protected void SetTextEdit()
+    {
+        string ControlName = "TextEdit";
+        // Text Edit
+        SetColor("caret_color", ControlName, SelectedFontColor);
+        SetColor("font_color", ControlName, SelectedFontColor);
+        SetColor("selection_color", ControlName, SecondaryColor.Contrasted());
+        SetStylebox("focus", ControlName, BackgroundStyle);
+        SetStylebox("normal", ControlName, BackgroundStyle);
+        SetStylebox("read_only", ControlName, MidgroundStyle);
+    }
+    protected void SetToolButton()
+    {
+        string ControlName = "ToolButton";
+        // Tool Button
+        SetColor("font_color", ControlName, SelectedFontColor);
+        SetColor("font_color_hover", ControlName, HoverFontColor);
+        SetColor("font_color_pressed", ControlName, PressedFontColor);
+        SetStylebox("disabled", ControlName, BackgroundStyleBorderless);
+        SetStylebox("focus", ControlName, BackgroundStyleBorderless);
+        SetStylebox("hover", ControlName, BackgroundStyleBorderless);
+        SetStylebox("normal", ControlName, BackgroundStyleBorderless);
+        SetStylebox("pressed", ControlName, BackgroundStyleBorderless);
+    }
+    protected void SetTooltipLabel()
+    {
+        string ControlName = "TooltipLabel";
+        // Tooltip Label
+        SetColor("font_color", ControlName, TooltipFontColor);
+        SetColor("font_color_shadow", ControlName, TooltipFontShadowColor);
+    }
+    protected void SetTooltipPanel()
+    {
+        string ControlName = "TooltipPanel";
+        // Tooltip Panel
+        SetStylebox("panel", ControlName, ToolTipStyle);
+    }
+    protected void SetTree()
+    {
+        string ControlName = "Tree";
+        // Tree
+        SetColor("custom_button_font_highlight", ControlName, HoverFontColor);
+        SetColor("drop_position_color", ControlName, PressedFontColor);
+        SetColor("font_color", ControlName, SelectedFontColor);
+        SetColor("font_color_selected", ControlName, SelectedFontColor);
+        Color lineColor = new Color(SelectFontColor);
+        lineColor.a = 0.05f;
+        SetColor("guide_color", ControlName, lineColor);
+        lineColor = new Color(SelectFontColor);
+        lineColor.a = 0.1f;
+        SetColor("relationship_line_color", ControlName, lineColor);
+        SetColor("title_button_color", ControlName, SelectedFontColor);
+        SetStylebox("bg", ControlName, BackgroundStyle);
+        SetStylebox("bg_focus", ControlName, FocusBackground);
+        SetStylebox("selected", ControlName, HighlightStyle);
+        SetStylebox("selected_focus", ControlName, HighlightStyle);
+        SetStylebox("button_pressed", ControlName, ButtonPressedStyle);
+        SetStylebox("cursor", ControlName, HighlightStyle);
+        SetStylebox("cursor_unfocused", ControlName, HighlightStyle);
+        SetStylebox("custom_button", ControlName, new StyleBoxEmpty());
+        SetStylebox("custom_button_hover", ControlName, ButtonHoverStyle);
+        SetStylebox("custom_button_pressed", ControlName, new StyleBoxEmpty());
+        //SetStylebox("hover", ControlName, ); // Doesn't have a standard stylebox
+        //SetStylebox("selected", ControlName, ); // Also non-standard stylebox
+        // SetStylebox("selected_focus", ControlName, ); // non-standard stylebox
+        SetStylebox("title_button_hover", ControlName, HighlightContrastStyle);
+        SetStylebox("title_button_normal", ControlName, HighlightContrastStyle);
+        SetStylebox("title_button_pressed", ControlName, HighlightContrastStyle);
+    }
+    protected void SetVBoxContainer()
+    {
+        string ControlName = "VBoxContainer";
+    }
+    protected void SetVSCrollBar()
+    {
+        string ControlName = "VSCrollBar";
+    }
+    protected void SetVSeparator()
+    {
+        string ControlName = "VSeparator";
+        // V Separator
+        SetStylebox("separator", ControlName, SeparatorStyle);
+    }
+    protected void SetVSlider()
+    {
+        string ControlName = "VSlider";
+        // V Slider
+        SetStylebox("grabber_area", ControlName, HighlightStyle);
+        SetStylebox("grabber_area_highlight", ControlName, HighlightStyle);
+        SetStylebox("slider", ControlName, HighlightContrastStyle);
+    }
+    protected void SetVSplitContainer()
+    {
+        string ControlName = "VSplitContainer";
+    }
+    protected void SetWindowDialog()
+    {
+        string ControlName = "WindowDialog";
+        // Window Dialog
+        SetColor("title_color", ControlName, SelectedFontColor);
+
+        SetStylebox("panel", ControlName, WindowDialogPanelStyle);
+    }
+}
+
+namespace Godot.Utilities.Theme
+{
+    public static class StyleExtensions
+    {
+        public static void SetContentMarginAll(this StyleBoxFlat style, float margin)
+        {
+            style.ContentMarginBottom = margin;
+            style.ContentMarginLeft = margin;
+            style.ContentMarginRight = margin;
+            style.ContentMarginTop = margin;
+        }
+
+        public static void Tabify(this StyleBoxFlat style, float additionalSpacing = 0)
+        {
+            style.CornerRadiusBottomLeft = 0;
+            style.CornerRadiusBottomRight = 0;
+            style.BorderWidthBottom = 0;
+            style.ContentMarginLeft = 10;
+            style.ContentMarginRight = 10;
+            style.ContentMarginTop = 5;
+            style.ContentMarginBottom = 5;
+            style.ExpandMarginBottom = 1 + additionalSpacing;
+        }
     }
 }
