@@ -30,7 +30,7 @@ window/tablet_driver.pc="winink"
 
 [editor_plugins]
 
-enabled=PoolStringArray( "MonoDebuggerQM" )
+enabled=PoolStringArray( "res://addons/AutoTheme/plugin.cfg", "res://addons/MonoDebuggerQM/plugin.cfg" )
 
 [gui]
 

@@ -1,2 +1,33 @@
 Icons:
 
+BoxContainer:
+    None
+
+Button:
+    None
+
+CheckBox:
+    checked - GuiChecked.svg
+    radio_checked - GuiRadioChecked.svg
+    radio_unchecked - GuiRadioUnchecked.svg
+    unchecked - GuiUnchecked.svg
+
+CheckButton:
+    off - GuiToggleOn.svg
+    off_disabled - unused, 32x32 transparent image texture
+    on - GuiToggleOff.svg
+    on_disabled - unused
+
+ColorPicker:
+    add_preset (+ Icon)
+    overbright_indicator
+    preset_bg
+    screen_picker
+
+ColorPickerButton:
+    bg (matches ColorPciker/preset_bg)
+
+Editor, EditorAbout, EditorFonts, EditorHelp: None
+
+EditorIcons:
+    ALL OF THEM

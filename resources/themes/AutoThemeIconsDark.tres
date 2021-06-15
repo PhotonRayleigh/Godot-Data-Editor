@@ -1,0 +1,149 @@
+[gd_resource type="Resource" load_steps=73 format=2]
+
+[ext_resource path="res://addons/AutoTheme/AutoThemeIcons.cs" type="Script" id=1]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiUnchecked.svg" type="Texture" id=2]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiToggleOn.svg" type="Texture" id=3]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiChecked.svg" type="Texture" id=4]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiRadioChecked.svg" type="Texture" id=5]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiToggleOnMirrored.svg" type="Texture" id=6]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiRadioUnchecked.svg" type="Texture" id=7]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiDropdown.svg" type="Texture" id=8]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiMiniCheckerboard.svg" type="Texture" id=9]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiToggleOffMirrored.svg" type="Texture" id=10]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiHsplitter.svg" type="Texture" id=11]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiToggleOff.svg" type="Texture" id=12]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiCloseCustomizable.svg" type="Texture" id=13]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiEllipsis.svg" type="Texture" id=14]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiHTick.svg" type="Texture" id=15]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiClose.svg" type="Texture" id=16]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiScrollArrowRight.svg" type="Texture" id=17]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiProgressFill.svg" type="Texture" id=18]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiScrollArrowLeft.svg" type="Texture" id=19]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiScrollArrowRightHl.svg" type="Texture" id=20]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiOptionArrow.svg" type="Texture" id=21]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiScrollArrowLeftHl.svg" type="Texture" id=22]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiProgressBar.svg" type="Texture" id=23]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiResizerMirrored.svg" type="Texture" id=24]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiResizer.svg" type="Texture" id=25]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiVisibilityXray.svg" type="Texture" id=26]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiVsplitter.svg" type="Texture" id=27]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiVsplitBg.svg" type="Texture" id=28]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiVTick.svg" type="Texture" id=29]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiScrollGrabberPressed.svg" type="Texture" id=30]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiSliderGrabber.svg" type="Texture" id=31]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiSliderGrabberHl.svg" type="Texture" id=32]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiTreeArrowLeft.svg" type="Texture" id=33]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiTreeArrowUp.svg" type="Texture" id=34]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiTabMirrored.svg" type="Texture" id=35]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiTreeArrowRight.svg" type="Texture" id=36]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiScrollGrabberHl.svg" type="Texture" id=37]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiScrollBg.svg" type="Texture" id=38]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiScrollGrabber.svg" type="Texture" id=39]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiSpinboxUpdown.svg" type="Texture" id=40]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiSpace.svg" type="Texture" id=41]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiTabMenu.svg" type="Texture" id=42]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiTab.svg" type="Texture" id=43]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiTabMenuHl.svg" type="Texture" id=44]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiTreeArrowDown.svg" type="Texture" id=45]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiViewportVhsplitter.svg" type="Texture" id=46]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiVisibilityHidden.svg" type="Texture" id=47]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiViewportVdiagsplitter.svg" type="Texture" id=48]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiViewportHdiagsplitter.svg" type="Texture" id=49]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiVisibilityVisible.svg" type="Texture" id=50]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/GuiTreeUpdown.svg" type="Texture" id=51]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/ArrowDown.svg" type="Texture" id=52]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/ArrowLeft.svg" type="Texture" id=53]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/ArrowUp.svg" type="Texture" id=54]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/Add.svg" type="Texture" id=55]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/ArrowRight.svg" type="Texture" id=56]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/ColorPick.svg" type="Texture" id=57]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/ActionCut.svg" type="Texture" id=58]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/ActionCopy.svg" type="Texture" id=59]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/OverbrightIndicator.svg" type="Texture" id=60]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/ActionPaste.svg" type="Texture" id=61]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/Folder.svg" type="Texture" id=62]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/Reload.svg" type="Texture" id=63]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/ReloadSmall.svg" type="Texture" id=64]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/File.svg" type="Texture" id=65]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/FolderBigThumb.svg" type="Texture" id=66]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/FolderMediumThumb.svg" type="Texture" id=67]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/FileBigThumb.svg" type="Texture" id=68]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/FileMediumThumb.svg" type="Texture" id=69]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/Collapse.svg" type="Texture" id=70]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/Forward.svg" type="Texture" id=71]
+[ext_resource path="res://resources/Icons/Godot/gui_dark/Back.svg" type="Texture" id=72]
+
+[resource]
+resource_name = "DarkIcons"
+script = ExtResource( 1 )
+ActionCopy = ExtResource( 59 )
+ActionCut = ExtResource( 58 )
+ActionPaste = ExtResource( 61 )
+ArrowDown = ExtResource( 52 )
+ArrowLeft = ExtResource( 53 )
+ArrowRight = ExtResource( 56 )
+ArrowUp = ExtResource( 54 )
+Back = ExtResource( 72 )
+Forward = ExtResource( 71 )
+Collapse = ExtResource( 70 )
+ColorPick = ExtResource( 57 )
+OverbrightIndicator = ExtResource( 60 )
+File = ExtResource( 65 )
+FileMediumThumb = ExtResource( 69 )
+FileBigThumb = ExtResource( 68 )
+Folder = ExtResource( 62 )
+FolderBigThumb = ExtResource( 66 )
+FolderMediumThumb = ExtResource( 67 )
+Reload = ExtResource( 63 )
+ReloadSmall = ExtResource( 64 )
+GuiChecked = ExtResource( 4 )
+GuiUnchecked = ExtResource( 2 )
+GuiRadioChecked = ExtResource( 5 )
+GuiRadioUnchecked = ExtResource( 7 )
+GuiToggleOff = ExtResource( 12 )
+GuiToggleOffMirrored = ExtResource( 10 )
+GuiToggleOn = ExtResource( 3 )
+GuiToggleOnMirrored = ExtResource( 6 )
+GuiClose = ExtResource( 16 )
+GuiCloseCustomizable = ExtResource( 13 )
+GuiDropdown = ExtResource( 8 )
+GuiEllipsis = ExtResource( 14 )
+Add = ExtResource( 55 )
+GuiHsplitter = ExtResource( 11 )
+GuiHTick = ExtResource( 15 )
+GuiMiniCheckerboard = ExtResource( 9 )
+GuiOptionArrow = ExtResource( 21 )
+GuiProgressBar = ExtResource( 23 )
+GuiProgressFill = ExtResource( 18 )
+GuiResizer = ExtResource( 25 )
+GuiResizerMirrored = ExtResource( 24 )
+GuiScrollArrowLeft = ExtResource( 19 )
+GuiScrollArrowLeftHl = ExtResource( 22 )
+GuiScrollArrowRight = ExtResource( 17 )
+GuiScrollArrowRightHl = ExtResource( 20 )
+GuiScrollBg = ExtResource( 38 )
+GuiScrollGrabber = ExtResource( 39 )
+GuiScrollGrabberHl = ExtResource( 37 )
+GuiScrollGrabberPressed = ExtResource( 30 )
+GuiSliderGrabber = ExtResource( 31 )
+GuiSliderGrabberHl = ExtResource( 32 )
+GuiSpinboxUpdown = ExtResource( 40 )
+GuiTabMenu = ExtResource( 42 )
+GuiTabMenuHl = ExtResource( 44 )
+GuiTreeArrowDown = ExtResource( 45 )
+GuiTreeArrorLeft = ExtResource( 33 )
+GuiTreeArrowRight = ExtResource( 36 )
+GuiTreeArrowUp = ExtResource( 34 )
+GuiTreeArrowUpdown = ExtResource( 51 )
+GuiViewportHdiagsplitter = ExtResource( 49 )
+GuiViewpoertVdiagsplitter = ExtResource( 48 )
+GuiViewportVhsplitter = ExtResource( 46 )
+GuiVisibilityHidden = ExtResource( 47 )
+GuiVisibilityVisible = ExtResource( 50 )
+GuiVisibilityXray = ExtResource( 26 )
+GuiVsplitBg = ExtResource( 28 )
+GuiVsplitter = ExtResource( 27 )
+GuiVTick = ExtResource( 29 )
+GuiSpace = ExtResource( 41 )
+GuiTab = ExtResource( 43 )
+GuiTabMirrored = ExtResource( 35 )

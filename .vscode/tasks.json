@@ -15,6 +15,20 @@
                 "reveal": "silent"
             },
             "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Godot Build",
+            "command": "godot",
+            "type": "shell",
+            "args": [
+                "--build-solutions",
+                "--no-window"
+            ],
+            "group": "none",
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": []
         }
     ]
 }

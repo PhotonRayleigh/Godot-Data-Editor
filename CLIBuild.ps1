@@ -1,0 +1,1 @@
+godot.exe --no-window --build-solutions

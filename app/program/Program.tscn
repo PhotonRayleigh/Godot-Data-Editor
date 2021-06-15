@@ -6,6 +6,7 @@
 [ext_resource path="res://app/SystemMenu/MenuPanel.cs" type="Script" id=4]
 [ext_resource path="res://resources/fonts/Roboto/Roboto-Regular.ttf" type="DynamicFontData" id=5]
 [ext_resource path="res://app/jsoninspector/JSONInspector.tscn" type="PackedScene" id=6]
+[ext_resource path="res://resources/themes/Custom_Theme.tres" type="Theme" id=7]
 
 [sub_resource type="DynamicFont" id=1]
 size = 35
@@ -13,12 +14,10 @@ use_mipmaps = true
 use_filter = true
 font_data = ExtResource( 5 )
 
-[sub_resource type="StyleBoxFlat" id=2]
-bg_color = Color( 0.27451, 0.27451, 0.27451, 1 )
-
 [node name="Main" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
+theme = ExtResource( 7 )
 script = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
@@ -30,7 +29,7 @@ script = ExtResource( 3 )
 [node name="Background" type="ColorRect" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
-color = Color( 0.168627, 0.168627, 0.168627, 1 )
+color = Color( 0.976941, 0.976941, 0.976941, 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -39,7 +38,7 @@ __meta__ = {
 anchor_top = 0.04
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_top = -1.90735e-06
+margin_top = 5.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -85,14 +84,26 @@ align = 1
 [node name="JSONInspector" parent="AppHook" instance=ExtResource( 6 )]
 anchor_top = -0.00173611
 anchor_bottom = 0.998264
-margin_bottom = -1.0
+margin_top = -0.00868219
+margin_bottom = -1.00867
+
+[node name="ItemList" type="ItemList" parent="AppHook/JSONInspector"]
+margin_left = 305.5
+margin_top = 254.417
+margin_right = 411.5
+margin_bottom = 412.417
+items = [ "Item 0", null, false, "Item 1", null, false, "Item 2", null, false, "Item 3", null, false, "Item 4", null, false ]
+select_mode = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="SystemMenuHook" type="Node" parent="."]
 
 [node name="MenuPanel" type="Panel" parent="SystemMenuHook"]
 anchor_right = 1.0
-margin_bottom = 25.0
-custom_styles/panel = SubResource( 2 )
+margin_bottom = 29.0
+theme = ExtResource( 7 )
 script = ExtResource( 4 )
 __meta__ = {
 "_edit_use_anchors_": false
@@ -106,9 +117,8 @@ __meta__ = {
 }
 
 [node name="MenuButton" type="MenuButton" parent="SystemMenuHook/MenuPanel/MenuHBox"]
-margin_right = 54.0
+margin_right = 52.0
 margin_bottom = 29.0
-theme = ExtResource( 2 )
 text = "Menu"
 items = [ "Programs", null, 0, false, true, 0, 0, null, "", false, "", null, 0, false, true, 1, 0, null, "", true, "Http Download", null, 0, false, false, 2, 0, null, "", false, "JSON Inspector", null, 0, false, false, 3, 0, null, "", false ]
 switch_on_hover = true
@@ -126,11 +136,32 @@ __meta__ = {
 [node name="OverlayHook" type="Node" parent="."]
 
 [node name="Button" type="Button" parent="."]
-margin_left = 22.6326
-margin_top = 545.12
-margin_right = 244.633
-margin_bottom = 574.12
+margin_left = 23.6326
+margin_top = 535.422
+margin_right = 245.633
+margin_bottom = 564.422
 text = "Spawn Crap Ton of Threads"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="LineEdit" type="LineEdit" parent="."]
+margin_left = 197.0
+margin_top = 220.0
+margin_right = 278.0
+margin_bottom = 241.0
+custom_constants/minimum_spaces = 4
+text = "Hello Sir!"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="CheckButton" type="CheckButton" parent="."]
+margin_left = 223.0
+margin_top = 440.417
+margin_right = 264.0
+margin_bottom = 461.417
+text = "My button"
 __meta__ = {
 "_edit_use_anchors_": false
 }

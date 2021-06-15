@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using SparkLib;
 
+[Tool]
 public partial class FileSystem : Panel
 {
     /*
@@ -36,15 +37,55 @@ public partial class FileSystem : Panel
 
     protected FSViewTree.Node[] clipBoard = new FSViewTree.Node[0];
 
+    AutoTheme? customTheme;
+    FSControls? controlBar;
+
     public override void _Ready()
     {
-        FileSystemListNode = GetNode<Tree>("FileSystemScroll/FileSystemList");
-        ContextMenuNode = GetNode<PopupMenu>("ContextMenu");
-        FilePathNode = GetNode<LineEdit>("HBoxContainer/FilePath");
-        userWorkingTree = new FSViewTree(path);
-        FilePathNode.Text = userWorkingTree.userRootDir!.path;
+        if (!Engine.EditorHint)
+        {
+            FileSystemListNode = GetNode<Tree>("FileSystemScroll/FileSystemList");
+            ContextMenuNode = GetNode<PopupMenu>("ContextMenu");
+            FilePathNode = GetNode<LineEdit>("HBoxContainer/FilePath");
+            userWorkingTree = new FSViewTree(path);
+            FilePathNode.Text = userWorkingTree.userRootDir!.path;
 
-        updateFileSystem.RefreshFSSynchronous();
+            updateFileSystem.RefreshFSSynchronous();
+        }
+
+        if (Engine.EditorHint)
+        {
+            if (Theme is not null && Theme is AutoTheme theme)
+            {
+                customTheme = theme;
+            }
+            else
+            {
+                Node tryMain = GetTree().EditedSceneRoot;
+                if (tryMain is not null && tryMain is Program main && tryMain.Name == "Main")
+                {
+                    if (main.Theme is not null && main.Theme is AutoTheme mainTheme)
+                    {
+                        customTheme = mainTheme;
+                    }
+                }
+            }
+
+            if (customTheme is not null)
+            {
+                controlBar = GetNode<FSControls>("HBoxContainer");
+                controlBar._Ready();
+                customTheme.Connect("changed", this, nameof(_OnThemeUpdate));
+                _OnThemeUpdate();
+            }
+        }
+
+    }
+
+    public override void _ExitTree()
+    {
+        base._ExitTree();
+        customTheme.Disconnect("changed", this, nameof(_OnThemeUpdate));
     }
 
     public FileSystem()
@@ -396,6 +437,11 @@ public partial class FileSystem : Panel
     protected void _OnRefreshButtonPressed()
     {
         var t = updateFileSystem.RefreshFSAsync();
+    }
+
+    protected void _OnThemeUpdate()
+    {
+        controlBar.SetIcons(customTheme);
     }
 
     /// <summary>
