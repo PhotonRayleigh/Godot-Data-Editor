@@ -29,7 +29,7 @@ script = ExtResource( 3 )
 [node name="Background" type="ColorRect" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
-color = Color( 0.974196, 0.975294, 0.978039, 1 )
+color = Color( 0.14384, 0.152301, 0.170916, 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -87,17 +87,6 @@ anchor_bottom = 0.998264
 margin_top = -0.00868219
 margin_bottom = -1.00867
 
-[node name="ItemList" type="ItemList" parent="AppHook/JSONInspector"]
-margin_left = 305.5
-margin_top = 254.417
-margin_right = 411.5
-margin_bottom = 412.417
-items = [ "Item 0", null, false, "Item 1", null, false, "Item 2", null, false, "Item 3", null, false, "Item 4", null, false ]
-select_mode = 1
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
 [node name="SystemMenuHook" type="Node" parent="."]
 
 [node name="MenuPanel" type="Panel" parent="SystemMenuHook"]
@@ -136,32 +125,12 @@ __meta__ = {
 [node name="OverlayHook" type="Node" parent="."]
 
 [node name="Button" type="Button" parent="."]
+visible = false
 margin_left = 23.6326
 margin_top = 535.422
 margin_right = 245.633
 margin_bottom = 564.422
 text = "Spawn Crap Ton of Threads"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="LineEdit" type="LineEdit" parent="."]
-margin_left = 197.0
-margin_top = 220.0
-margin_right = 278.0
-margin_bottom = 241.0
-custom_constants/minimum_spaces = 4
-text = "Hello Sir!"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="CheckButton" type="CheckButton" parent="."]
-margin_left = 223.0
-margin_top = 440.417
-margin_right = 264.0
-margin_bottom = 461.417
-text = "My button"
 __meta__ = {
 "_edit_use_anchors_": false
 }
