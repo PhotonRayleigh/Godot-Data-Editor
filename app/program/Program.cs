@@ -13,6 +13,7 @@ using System.Xml.Linq;
 using LiteDB;
 // using System.IO;
 using SparkLib;
+using AutoThemes;
 
 [Tool]
 public class Program : Control
@@ -34,6 +35,16 @@ public class Program : Control
         {
             customTheme = Theme as AutoTheme;
             customTheme!.Connect("changed", this, nameof(ThemeChanged));
+            var AutoThemeNodes = GetTree().GetNodesInGroup("AutoThemeNodes");
+            foreach (Node node in AutoThemeNodes)
+            {
+                if (node is IAutoThemeUser autoNode)
+                {
+                    autoNode.ATheme = customTheme;
+                    customTheme.Connect("changed", node, nameof(autoNode._OnAutoThemeChanged));
+                    autoNode._OnAutoThemeChanged();
+                }
+            }
         }
         isReady = true;
         return;
@@ -43,6 +54,15 @@ public class Program : Control
     {
         base._ExitTree();
         customTheme.Disconnect("changed", this, nameof(ThemeChanged));
+        var AutoThemeNodes = GetTree().GetNodesInGroup("AutoThemeNodes");
+        foreach (Node node in AutoThemeNodes)
+        {
+            if (node is IAutoThemeUser autoNode)
+            {
+                autoNode.ATheme = customTheme;
+                customTheme.Disconnect("changed", node, nameof(autoNode._OnAutoThemeChanged));
+            }
+        }
     }
 
     //  // Called every frame. 'delta' is the elapsed time since the previous frame.

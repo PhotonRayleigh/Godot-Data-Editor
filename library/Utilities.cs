@@ -4,7 +4,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Godot.Utilities
+namespace SparkLib.Godot
 {
     public class Utilities : object
     {
@@ -67,13 +67,8 @@ namespace Godot.Utilities
         }
     }
 
-    public class Debug : object
+    public class Debug
     {
 
-    }
-
-    public static class Extensions : object
-    {
-        // Use this as a place to store extensions for the project.
     }
 }

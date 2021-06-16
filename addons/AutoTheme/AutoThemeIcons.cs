@@ -1,9 +1,8 @@
 using Godot;
 using System;
-using Godot.Utilities.Theme;
 using SparkLib;
 
-namespace Godot.Utilities.Theme
+namespace AutoThemes
 {
     public class AutoThemeIcons : Resource
     {

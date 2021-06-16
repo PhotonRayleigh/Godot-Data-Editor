@@ -1,0 +1,18 @@
+1) ANY scripts you intend to run in the editor MUST
+be annotated with [Tool]. Otherwise they won't work right.
+
+2) C# scripts on resources seem to have marshalling bugs.
+Trying to access members of a custom resource that is a member
+of a custom resource seems to break within the editor.
+Such calls work fine when running the application/game.
+
+3) Godot is really crash happy if you re-build the solution
+when your app is using custom resources.
+
+4) Tool is really buggy if used improperly. Remember that
+all scripts you need to run in the editor get annotated with
+[Tool]. Also use Engine.EditorHint to selectively run code
+depending on if it is in the context of the editor or not.
+
+I think good practice will be to include editor code and
+non-editor code for every scene, as needed. 

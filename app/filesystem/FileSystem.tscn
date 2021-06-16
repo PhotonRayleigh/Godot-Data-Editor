@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://app/filesystem/FileSystem.cs" type="Script" id=1]
 [ext_resource path="res://resources/Icons/Godot/gui_dark/ArrowRight.svg" type="Texture" id=2]
@@ -7,7 +7,6 @@
 [ext_resource path="res://resources/Icons/Godot/gui_dark/ArrowUp.svg" type="Texture" id=5]
 [ext_resource path="res://app/filesystem/FileSystemList.cs" type="Script" id=6]
 [ext_resource path="res://app/filesystem/FSControls.cs" type="Script" id=7]
-[ext_resource path="res://resources/themes/Custom_Theme.tres" type="Theme" id=8]
 
 [sub_resource type="StyleBoxEmpty" id=1]
 
@@ -37,14 +36,15 @@ func _on_ContextMenu_visibility_changed():
 	
 "
 
-[node name="FileSystem" type="Panel"]
+[node name="FileSystem" type="Panel" groups=[
+"AutoThemeNodes",
+]]
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 5.0
 margin_top = 30.0
 margin_right = -5.0
 margin_bottom = -5.0
-theme = ExtResource( 8 )
 script = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false,
@@ -60,37 +60,34 @@ __meta__ = {
 }
 
 [node name="Back Button" type="Button" parent="HBoxContainer"]
-margin_right = 26.0
+margin_right = 28.0
 margin_bottom = 29.0
-theme = ExtResource( 8 )
 icon = ExtResource( 4 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="Forward Button" type="Button" parent="HBoxContainer"]
-margin_left = 30.0
-margin_right = 56.0
+margin_left = 32.0
+margin_right = 60.0
 margin_bottom = 29.0
-theme = ExtResource( 8 )
 icon = ExtResource( 2 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="Up Button" type="Button" parent="HBoxContainer"]
-margin_left = 60.0
-margin_right = 86.0
+margin_left = 64.0
+margin_right = 92.0
 margin_bottom = 29.0
-theme = ExtResource( 8 )
 icon = ExtResource( 5 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="FilePath" type="LineEdit" parent="HBoxContainer"]
-margin_left = 90.0
-margin_right = 984.0
+margin_left = 96.0
+margin_right = 982.0
 margin_bottom = 29.0
 size_flags_horizontal = 3
 text = "user://"
@@ -100,10 +97,9 @@ __meta__ = {
 }
 
 [node name="RefreshButton" type="Button" parent="HBoxContainer"]
-margin_left = 988.0
+margin_left = 986.0
 margin_right = 1014.0
 margin_bottom = 29.0
-theme = ExtResource( 8 )
 icon = ExtResource( 3 )
 
 [node name="FileSystemScroll" type="ScrollContainer" parent="."]

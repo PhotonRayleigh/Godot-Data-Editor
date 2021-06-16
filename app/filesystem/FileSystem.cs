@@ -5,9 +5,11 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using SparkLib;
+using Godot.Utilities.Extensions;
+using AutoThemes;
 
 [Tool]
-public partial class FileSystem : Panel
+public partial class FileSystem : Panel, IAutoThemeUser
 {
     /*
         Custom FileSystem Control for Godot.
@@ -37,7 +39,12 @@ public partial class FileSystem : Panel
 
     protected FSViewTree.Node[] clipBoard = new FSViewTree.Node[0];
 
-    AutoTheme? customTheme;
+    protected AutoTheme? customTheme;
+    public AutoTheme? ATheme
+    {
+        get => customTheme;
+        set => customTheme = value;
+    }
     FSControls? controlBar;
 
     public override void _Ready()
@@ -53,39 +60,43 @@ public partial class FileSystem : Panel
             updateFileSystem.RefreshFSSynchronous();
         }
 
-        if (Engine.EditorHint)
-        {
-            if (Theme is not null && Theme is AutoTheme theme)
-            {
-                customTheme = theme;
-            }
-            else
-            {
-                Node tryMain = GetTree().EditedSceneRoot;
-                if (tryMain is not null && tryMain is Program main && tryMain.Name == "Main")
-                {
-                    if (main.Theme is not null && main.Theme is AutoTheme mainTheme)
-                    {
-                        customTheme = mainTheme;
-                    }
-                }
-            }
+        controlBar = GetNode<FSControls>("HBoxContainer");
 
-            if (customTheme is not null)
-            {
-                controlBar = GetNode<FSControls>("HBoxContainer");
-                controlBar._Ready();
-                customTheme.Connect("changed", this, nameof(_OnThemeUpdate));
-                _OnThemeUpdate();
-            }
-        }
+        // if (Theme is not null && Theme is AutoTheme theme)
+        // {
+        //     customTheme = theme;
+        // }
+        // else
+        // {
+        //     var Itheme = this.GetInheritedTheme();
+        //     if (Itheme is not null && Itheme is AutoTheme ATheme)
+        //     {
+        //         customTheme = ATheme;
+        //     }
+        //     // else
+        //     // {
+        //     //     Node tryMain = GetTree().EditedSceneRoot;
+        //     //     if (tryMain is not null && tryMain is Program main && tryMain.Name == "Main")
+        //     //     {
+        //     //         if (main.Theme is not null && main.Theme is AutoTheme mainTheme)
+        //     //         {
+        //     //             customTheme = mainTheme;
+        //     //         }
+        //     //     }
+        //     // }
+        // }
 
+        // if (customTheme is not null)
+        // {
+        //     customTheme.Connect("changed", this, nameof(_OnAutoThemeChanged));
+        //     _OnAutoThemeChanged();
+        // }
     }
 
     public override void _ExitTree()
     {
         base._ExitTree();
-        customTheme.Disconnect("changed", this, nameof(_OnThemeUpdate));
+        customTheme.Disconnect("changed", this, nameof(_OnAutoThemeChanged));
     }
 
     public FileSystem()
@@ -439,7 +450,7 @@ public partial class FileSystem : Panel
         var t = updateFileSystem.RefreshFSAsync();
     }
 
-    protected void _OnThemeUpdate()
+    public void _OnAutoThemeChanged()
     {
         controlBar.SetIcons(customTheme);
     }
