@@ -1,9 +1,14 @@
+// Author: PhotonRayleigh
+// Year: 2021
+// GitHub: https://github.com/PhotonRayleigh
+
 using Godot;
 using System;
 using SparkLib;
 
 namespace AutoThemes
 {
+    [Tool]
     public class AutoThemeIcons : Resource
     {
         [Export]
@@ -168,101 +173,101 @@ namespace AutoThemes
         [Export]
         public Texture GuiTabMirrored = new ImageTexture();
 
-        // public AutoThemeIcons()
-        // {
-        //     Image emptyImage = new Image();
-        //     emptyImage.Create(16, 16, false, Image.Format.Rgba8);
-        //     emptyImage.Fill(Colors.Chartreuse);
+        public AutoThemeIcons()
+        {
+            Image emptyImage = new Image();
+            emptyImage.Create(16, 16, false, Image.Format.Rgba8);
+            emptyImage.Fill(Colors.Chartreuse);
 
-        //     (ActionCopy as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (ActionCut as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (ActionPaste as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (ArrowDown as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (ArrowLeft as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (ArrowRight as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (ArrowUp as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (Back as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (Forward as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (Collapse as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (ColorPick as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (OverbrightIndicator as ImageTexture)!.CreateFromImage(emptyImage);
+            (ActionCopy as ImageTexture)!.CreateFromImage(emptyImage);
+            (ActionCut as ImageTexture)!.CreateFromImage(emptyImage);
+            (ActionPaste as ImageTexture)!.CreateFromImage(emptyImage);
+            (ArrowDown as ImageTexture)!.CreateFromImage(emptyImage);
+            (ArrowLeft as ImageTexture)!.CreateFromImage(emptyImage);
+            (ArrowRight as ImageTexture)!.CreateFromImage(emptyImage);
+            (ArrowUp as ImageTexture)!.CreateFromImage(emptyImage);
+            (Back as ImageTexture)!.CreateFromImage(emptyImage);
+            (Forward as ImageTexture)!.CreateFromImage(emptyImage);
+            (Collapse as ImageTexture)!.CreateFromImage(emptyImage);
+            (ColorPick as ImageTexture)!.CreateFromImage(emptyImage);
+            (OverbrightIndicator as ImageTexture)!.CreateFromImage(emptyImage);
 
-        //     (File as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (FileMediumThumb as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (FileBigThumb as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (Folder as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (FolderBigThumb as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (FolderMediumThumb as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (Reload as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (ReloadSmall as ImageTexture)!.CreateFromImage(emptyImage);
+            (File as ImageTexture)!.CreateFromImage(emptyImage);
+            (FileMediumThumb as ImageTexture)!.CreateFromImage(emptyImage);
+            (FileBigThumb as ImageTexture)!.CreateFromImage(emptyImage);
+            (Folder as ImageTexture)!.CreateFromImage(emptyImage);
+            (FolderBigThumb as ImageTexture)!.CreateFromImage(emptyImage);
+            (FolderMediumThumb as ImageTexture)!.CreateFromImage(emptyImage);
+            (Reload as ImageTexture)!.CreateFromImage(emptyImage);
+            (ReloadSmall as ImageTexture)!.CreateFromImage(emptyImage);
 
-        //     (GuiChecked as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (GuiUnchecked as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (GuiRadioChecked as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (GuiRadioUnchecked as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiChecked as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiUnchecked as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiRadioChecked as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiRadioUnchecked as ImageTexture)!.CreateFromImage(emptyImage);
 
-        //     (GuiToggleOff as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (GuiToggleOffMirrored as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (GuiToggleOn as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (GuiToggleOnMirrored as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (GuiClose as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (GuiCloseCustomizable as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (GuiDropdown as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (GuiEllipsis as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (Add as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiToggleOff as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiToggleOffMirrored as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiToggleOn as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiToggleOnMirrored as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiClose as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiCloseCustomizable as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiDropdown as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiEllipsis as ImageTexture)!.CreateFromImage(emptyImage);
+            (Add as ImageTexture)!.CreateFromImage(emptyImage);
 
-        //     //Texture GuiGraphNodePort;
+            //Texture GuiGraphNodePort;
 
-        //     (GuiHsplitter as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (GuiHTick as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (GuiMiniCheckerboard as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (GuiOptionArrow as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (GuiProgressBar as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (GuiProgressFill as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiHsplitter as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiHTick as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiMiniCheckerboard as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiOptionArrow as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiProgressBar as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiProgressFill as ImageTexture)!.CreateFromImage(emptyImage);
 
-        //     (GuiResizer as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (GuiResizerMirrored as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiResizer as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiResizerMirrored as ImageTexture)!.CreateFromImage(emptyImage);
 
-        //     (GuiScrollArrowLeft as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (GuiScrollArrowLeftHl as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (GuiScrollArrowRight as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (GuiScrollArrowRightHl as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiScrollArrowLeft as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiScrollArrowLeftHl as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiScrollArrowRight as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiScrollArrowRightHl as ImageTexture)!.CreateFromImage(emptyImage);
 
-        //     (GuiScrollBg as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (GuiScrollGrabber as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (GuiScrollGrabberHl as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (GuiScrollGrabberPressed as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiScrollBg as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiScrollGrabber as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiScrollGrabberHl as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiScrollGrabberPressed as ImageTexture)!.CreateFromImage(emptyImage);
 
-        //     (GuiSliderGrabber as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (GuiSliderGrabberHl as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (GuiSpinboxUpdown as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiSliderGrabber as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiSliderGrabberHl as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiSpinboxUpdown as ImageTexture)!.CreateFromImage(emptyImage);
 
-        //     (GuiTabMenu as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (GuiTabMenuHl as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiTabMenu as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiTabMenuHl as ImageTexture)!.CreateFromImage(emptyImage);
 
-        //     (GuiTreeArrowDown as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (GuiTreeArrorLeft as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (GuiTreeArrowRight as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (GuiTreeArrowUp as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (GuiTreeArrowUpdown as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiTreeArrowDown as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiTreeArrorLeft as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiTreeArrowRight as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiTreeArrowUp as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiTreeArrowUpdown as ImageTexture)!.CreateFromImage(emptyImage);
 
-        //     (GuiViewportHdiagsplitter as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (GuiViewpoertVdiagsplitter as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (GuiViewportVhsplitter as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiViewportHdiagsplitter as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiViewpoertVdiagsplitter as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiViewportVhsplitter as ImageTexture)!.CreateFromImage(emptyImage);
 
-        //     (GuiVisibilityHidden as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (GuiVisibilityVisible as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (GuiVisibilityXray as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiVisibilityHidden as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiVisibilityVisible as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiVisibilityXray as ImageTexture)!.CreateFromImage(emptyImage);
 
-        //     (GuiVsplitBg as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (GuiVsplitter as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (GuiVTick as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiVsplitBg as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiVsplitter as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiVTick as ImageTexture)!.CreateFromImage(emptyImage);
 
-        //     // Text
-        //     (GuiSpace as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (GuiTab as ImageTexture)!.CreateFromImage(emptyImage);
-        //     (GuiTabMirrored as ImageTexture)!.CreateFromImage(emptyImage);
-        // }
+            // Text
+            (GuiSpace as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiTab as ImageTexture)!.CreateFromImage(emptyImage);
+            (GuiTabMirrored as ImageTexture)!.CreateFromImage(emptyImage);
+        }
 
         // public void FixAssignments()
         // {

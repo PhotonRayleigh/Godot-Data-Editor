@@ -1,3 +1,7 @@
+// Author: PhotonRayleigh
+// Year: 2021
+// GitHub: https://github.com/PhotonRayleigh
+
 using Godot;
 using System;
 using SparkLib.Godot.Theme;
@@ -26,7 +30,8 @@ namespace AutoThemes
                 refresh = value;
                 if (refresh == true)
                 {
-                    var t = RefreshAsync();
+                    // var t = RefreshAsync();
+                    Refresh();
                 }
             }
         }
@@ -42,7 +47,8 @@ namespace AutoThemes
                 iconAndFontColor = value;
                 if (refresh == true)
                 {
-                    var t = RefreshAsync();
+                    // var t = RefreshAsync();
+                    Refresh();
                 }
             }
         }
@@ -60,7 +66,8 @@ namespace AutoThemes
                 baseColor = value;
                 if (refresh == true)
                 {
-                    var t = RefreshAsync();
+                    // var t = RefreshAsync();
+                    Refresh();
                 }
             }
         }
@@ -75,7 +82,8 @@ namespace AutoThemes
                 accentColor = value;
                 if (refresh == true)
                 {
-                    var t = RefreshAsync();
+                    // var t = RefreshAsync();
+                    Refresh();
                 }
             }
         }
@@ -90,7 +98,8 @@ namespace AutoThemes
                 contrast = value;
                 if (refresh == true)
                 {
-                    var t = RefreshAsync();
+                    // var t = RefreshAsync();
+                    Refresh();
                 }
             }
         }
@@ -105,7 +114,8 @@ namespace AutoThemes
                 iconSaturation = value;
                 if (refresh == true)
                 {
-                    var t = RefreshAsync();
+                    // var t = RefreshAsync();
+                    Refresh();
                 }
             }
         }
@@ -120,7 +130,8 @@ namespace AutoThemes
                 relationshipLineOpacity = value;
                 if (refresh == true)
                 {
-                    var t = RefreshAsync();
+                    // var t = RefreshAsync();
+                    Refresh();
                 }
             }
         }
@@ -135,7 +146,8 @@ namespace AutoThemes
                 borderSize = value;
                 if (refresh == true)
                 {
-                    var t = RefreshAsync();
+                    // var t = RefreshAsync();
+                    Refresh();
                 }
             }
         }
@@ -150,7 +162,8 @@ namespace AutoThemes
                 cornerRadius = value;
                 if (refresh == true)
                 {
-                    var t = RefreshAsync();
+                    // var t = RefreshAsync();
+                    Refresh();
                 }
             }
         }
@@ -165,7 +178,8 @@ namespace AutoThemes
                 additionalSpacing = value;
                 if (refresh == true)
                 {
-                    var t = RefreshAsync();
+                    // var t = RefreshAsync();
+                    Refresh();
                 }
             }
         }
@@ -180,7 +194,8 @@ namespace AutoThemes
                 focusBorderSize = value;
                 if (refresh == true)
                 {
-                    var t = RefreshAsync();
+                    // var t = RefreshAsync();
+                    Refresh();
                 }
             }
         }
@@ -208,11 +223,11 @@ namespace AutoThemes
             }
         }
 
-        [Export]
+        // [Export]
         public AutoThemeIcons? IconSet
         {
             get => iconSet;
-            set => iconSet = iconSet;
+            // set => iconSet = iconSet;
         }
         protected AutoThemeIcons? iconSet = null;
 
@@ -226,12 +241,12 @@ namespace AutoThemes
         // Descends in lightness if contrast is positive
         // Ascends if contrast is negative
         public Color ForegroundColor;
-        public Color MidgroundColor; // Used for Midground
-        public Color BackgroundColor; // Used for Background
-        public Color BackdropColor; // For borders, or extra dark Backgrounds
+        public Color MidgroundColor;
+        public Color BackgroundColor;
+        public Color BackdropColor;
         public Color BackgroundContrastColor;
-        public Color HoverColor; // Used for Hover and other highlighted bg effects
-        public Color ForegroundContrastColor; // Draws attention, used in selected tabs for instance. Should look similar to Highlight
+        public Color HoverColor;
+        public Color ForegroundContrastColor;
         public Color HighlightColor; // Used for highlighting selections, requires transparency
         public Color MonoColor; // Black if Dark Font, white if Light Font
         public Color TooltipPanelColor = new("e6ffffff");
@@ -248,14 +263,14 @@ namespace AutoThemes
         public Color HighlightHoverColor;
 
         // Font Colors
-        public Color DisabledFontColor = new("#4dffffff"); // Default is #4dffffff
-        public Color HighlightedFontColor = new("e2e2e2");// Default is #e2e2e2
-        public Color PressedFontColor = new("b8e3ff");// Default is #b8e3ff
+        public Color DisabledFontColor = new("#4dffffff");
+        public Color HighlightedFontColor = new("e2e2e2");
+        public Color PressedFontColor = new("b8e3ff");
         public Color TooltipFontColor = new("303030");
         public Color TooltipFontShadowColor = new("1a000000");
 
         // Icon Colors
-        public Color HoverIconColor = new(0, 0, 0, 1); // Default is 293,293,293,255 (16 bit color?)
+        public Color HoverIconColor = new(0, 0, 0, 1); // Default is 293,293,293,255 - overbright
         public Color PressedIconColor = new(0, 0, 0, 1);// Default is 211, 261, 293, 255
         public Color FolderIconMod = new("cdebff");
 
@@ -331,10 +346,12 @@ namespace AutoThemes
             // Are there virtual resource functions I can use
             // like OnSave and OnLoad? 
             // AutoRefresh = false;
+            // var signals = GetSignalConnectionList("changed");
+            // foreach (var signal in signals)
+            // {
+            //     GD.Print($"{signal.ToString()}");
+            // }
         }
-
-        // There is the Changed() signal, which I can call and use
-        // To update on changes
 
         public void Refresh()
         {
@@ -343,6 +360,11 @@ namespace AutoThemes
         }
 
         protected Task refreshHandle;
+        /// <summary>
+        /// Use this with care. Running update code on a different
+        /// thread in the editor can cause issues.
+        /// </summary>
+        /// <returns>async Task object</returns>
         public async Task RefreshAsync()
         {
             if (refreshHandle is null)
@@ -593,6 +615,7 @@ namespace AutoThemes
             SeparatorStyle = new StyleBoxLine();
             SeparatorStyle.Color = DisabledFontColor;
 
+            // Control specific styles. Some are redudant for clarity.
             ToolTipPanel = StyleBoxFlatBuilder(TooltipPanelColor);
 
             ButtonDisabledStyle = PanelTextDisabled;
@@ -687,7 +710,6 @@ namespace AutoThemes
                 SetMenuButton();
                 SetOptionButton();
 
-                // Need to move the BorderlessBackgroundStyle
                 SetPanel();
                 SetPanelContainer();
 
@@ -727,11 +749,6 @@ namespace AutoThemes
             // Place custom after the fact...
         }
 
-        // protected void Set()
-        // {
-        //     string ControlName = "";
-        // }
-
         protected void SetBoxContainer()
         {
             //string ControlName = "BoxContainer";
@@ -768,10 +785,10 @@ namespace AutoThemes
             // SetConstant("check_vadjust", ControlName, 0);
             // SetConstant("hseparation", ControlName, 4);
 
-            SetIcon("checked", ControlName, (Texture)IconSet.Get("GuiChecked"));
-            SetIcon("radio_checked", ControlName, (Texture)IconSet.Get("GuiRadioChecked"));
-            SetIcon("radio_unchecked", ControlName, (Texture)IconSet.Get("GuiRadioUnchecked"));
-            SetIcon("unchecked", ControlName, (Texture)IconSet.Get("GuiUnchecked"));
+            SetIcon("checked", ControlName, IconSet.GuiChecked);
+            SetIcon("radio_checked", ControlName, IconSet.GuiRadioChecked);
+            SetIcon("radio_unchecked", ControlName, IconSet.GuiRadioUnchecked);
+            SetIcon("unchecked", ControlName, IconSet.GuiUnchecked);
 
             SetStylebox("disabled", ControlName, PanelBgBorderless);
             SetStylebox("hover", ControlName, PanelBgBorderless);
@@ -794,9 +811,9 @@ namespace AutoThemes
             // SetConstant("check_vadjust", ControlName, 0);
             // SetConstant("hseparation", ControlName, 4);
 
-            SetIcon("off", ControlName, (Texture)IconSet.Get("GuiToggleOff"));
+            SetIcon("off", ControlName, IconSet.GuiToggleOff);
             SetIcon("off_disabled", ControlName, new ImageTexture());
-            SetIcon("on", ControlName, (Texture)IconSet.Get("GuiToggleOn"));
+            SetIcon("on", ControlName, IconSet.GuiToggleOn);
             SetIcon("on_disabled", ControlName, new ImageTexture());
 
             SetStylebox("disabled", ControlName, PanelBgBorderless);
@@ -809,16 +826,16 @@ namespace AutoThemes
         protected void SetColorPicker()
         {
             string ControlName = nameof(ColorPicker);
-            SetIcon("add_preset", ControlName, (Texture)IconSet.Get("Add"));
-            SetIcon("overbright_indicator", ControlName, (Texture)IconSet.Get("OverbrightIndicator"));
-            SetIcon("preset_bg", ControlName, (Texture)IconSet.Get("GuiMiniCheckerboard"));
-            SetIcon("screen_picker", ControlName, (Texture)IconSet.Get("ColorPick"));
+            SetIcon("add_preset", ControlName, IconSet.Add);
+            SetIcon("overbright_indicator", ControlName, IconSet.OverbrightIndicator);
+            SetIcon("preset_bg", ControlName, IconSet.GuiMiniCheckerboard);
+            SetIcon("screen_picker", ControlName, IconSet.ColorPick);
         }
 
         protected void SetColorPickerButton()
         {
             string ControlName = nameof(ColorPickerButton);
-            SetIcon("bg", ControlName, (Texture)IconSet.Get("GuiMiniCheckerboard"));
+            SetIcon("bg", ControlName, IconSet.GuiMiniCheckerboard);
         }
 
         protected void SetEditor()
@@ -865,10 +882,10 @@ namespace AutoThemes
             SetColor("files_disabled", ControlName, DisabledFontColor);
             SetColor("folder_icon_mod", ControlName, FolderIconMod);
 
-            SetIcon("folder", ControlName, (Texture)IconSet.Get("Folder"));
-            SetIcon("parent_folder", ControlName, (Texture)IconSet.Get("ArrowUp"));
-            SetIcon("reload", ControlName, (Texture)IconSet.Get("Reload"));
-            SetIcon("toggle_hidden", ControlName, (Texture)IconSet.Get("GuiVisibilityVisible"));
+            SetIcon("folder", ControlName, IconSet.Folder);
+            SetIcon("parent_folder", ControlName, IconSet.ArrowUp);
+            SetIcon("reload", ControlName, IconSet.Reload);
+            SetIcon("toggle_hidden", ControlName, IconSet.GuiVisibilityVisible);
         }
 
         protected void SetGraphEdit()
@@ -901,7 +918,7 @@ namespace AutoThemes
         {
             string ControlName = nameof(HScrollBar);
             StyleBoxTexture grabber = new();
-            grabber.Texture = (Texture)IconSet.Get("GuiScrollGrabber");
+            grabber.Texture = IconSet.GuiScrollGrabber;
             grabber.DrawCenter = true;
             grabber.MarginBottom = 6;
             grabber.MarginLeft = 6;
@@ -916,14 +933,14 @@ namespace AutoThemes
             grabber.AxisStretchVertical = StyleBoxTexture.AxisStretchMode.Stretch;
 
             StyleBoxTexture grabberHl = grabber.Copy();
-            grabberHl.Texture = (Texture)IconSet.Get("GuiScrollGrabberHl");
+            grabberHl.Texture = IconSet.GuiScrollGrabberHl;
             grabberHl.MarginBottom = 5;
             grabberHl.MarginLeft = 5;
             grabberHl.MarginRight = 5;
             grabberHl.MarginTop = 5;
 
             StyleBoxTexture grabberPressed = grabber.Copy();
-            grabberPressed.Texture = (Texture)IconSet.Get("GuiScrollGrabberPressed");
+            grabberPressed.Texture = IconSet.GuiScrollGrabberPressed;
 
             StyleBoxTexture scroll = grabberPressed.Copy();
             ImageTexture scrollTexture = new();
@@ -961,14 +978,14 @@ namespace AutoThemes
             SetStylebox("grabber_area_highlight", ControlName, HighlightStyle);
             SetStylebox("slider", ControlName, PanelBdBorderless);
 
-            SetIcon("grabber", ControlName, (Texture)IconSet.Get("GuiSliderGrabber"));
-            SetIcon("grabber_highlight", ControlName, (Texture)IconSet.Get("GuiSliderGrabberHl"));
+            SetIcon("grabber", ControlName, IconSet.GuiSliderGrabber);
+            SetIcon("grabber_highlight", ControlName, IconSet.GuiSliderGrabberHl);
         }
         protected void SetHSplitContainer()
         {
             string ControlName = nameof(HSplitContainer);
 
-            SetIcon("grabber", ControlName, (Texture)IconSet.Get("GuiHsplitter"));
+            SetIcon("grabber", ControlName, IconSet.GuiHsplitter);
             SetStylebox("bg", ControlName, PanelBdBorderless); // This is normally a stylebox texture
                                                                // I don't know why it is a texture.
         }
@@ -1020,7 +1037,7 @@ namespace AutoThemes
             SetColor("selection_color", ControlName, HighlightColor);
             SetColor("font_color_uneditable", ControlName, DisabledFontColor);
 
-            SetIcon("clear", ControlName, (Texture)IconSet.Get("GuiClose"));
+            SetIcon("clear", ControlName, IconSet.GuiClose);
 
             SetStylebox("focus", ControlName, TextEditFocus);
             SetStylebox("normal", ControlName, TextEditBackground);
@@ -1061,7 +1078,7 @@ namespace AutoThemes
             SetColor("font_color_hover", ControlName, HighlightedFontColor);
             SetColor("font_color_pressed", ControlName, PressedFontColor);
 
-            SetIcon("arrow", ControlName, (Texture)IconSet.Get("GuiOptionArrow"));
+            SetIcon("arrow", ControlName, IconSet.GuiOptionArrow);
 
             SetStylebox("disabled", ControlName, ButtonDisabledStyle);
             SetStylebox("focus", ControlName, ButtonFocusStyle);
@@ -1096,14 +1113,14 @@ namespace AutoThemes
             SetColor("font_color_hover", ControlName, HighlightedFontColor);
             SetColor("font_color_accel", ControlName, DisabledFontColor);
 
-            SetIcon("checked", ControlName, (Texture)IconSet.Get("GuiChecked"));
-            SetIcon("radio_checked", ControlName, (Texture)IconSet.Get("GuiRadioChecked"));
-            SetIcon("radio_unchecked", ControlName, (Texture)IconSet.Get("GuiRadioUnchecked"));
-            SetIcon("submenu", ControlName, (Texture)IconSet.Get("ArrowRight"));
-            SetIcon("unchecked", ControlName, (Texture)IconSet.Get("GuiUnchecked"));
-            SetIcon("visibility_hidden", ControlName, (Texture)IconSet.Get("GuiVisibilityHidden"));
-            SetIcon("visibility_visible", ControlName, (Texture)IconSet.Get("GuiVisibilityVisible"));
-            SetIcon("visibility_xray", ControlName, (Texture)IconSet.Get("GuiVisibilityXray"));
+            SetIcon("checked", ControlName, IconSet.GuiChecked);
+            SetIcon("radio_checked", ControlName, IconSet.GuiRadioChecked);
+            SetIcon("radio_unchecked", ControlName, IconSet.GuiRadioUnchecked);
+            SetIcon("submenu", ControlName, IconSet.ArrowRight);
+            SetIcon("unchecked", ControlName, IconSet.GuiUnchecked);
+            SetIcon("visibility_hidden", ControlName, IconSet.GuiVisibilityHidden);
+            SetIcon("visibility_visible", ControlName, IconSet.GuiVisibilityVisible);
+            SetIcon("visibility_xray", ControlName, IconSet.GuiVisibilityXray);
 
             SetStylebox("disabled", ControlName, PanelBgBorderless);
             SetStylebox("focus", ControlName, PanelBgBorderless);
@@ -1129,7 +1146,7 @@ namespace AutoThemes
 
             StyleBoxTexture Bg = new();
 
-            Bg.Texture = (Texture)IconSet.Get("GuiProgressBar");
+            Bg.Texture = IconSet.GuiProgressBar;
             Bg.DrawCenter = true;
             Bg.MarginBottom = 4;
             Bg.MarginLeft = 4;
@@ -1178,7 +1195,7 @@ namespace AutoThemes
         {
             string ControlName = nameof(SpinBox);
 
-            SetIcon("updown", ControlName, (Texture)IconSet.Get("GuiSpinboxUpdown"));
+            SetIcon("updown", ControlName, IconSet.GuiSpinboxUpdown);
         }
         protected void SetTabContainer()
         {
@@ -1188,12 +1205,12 @@ namespace AutoThemes
             SetColor("font_color_bg", ControlName, DisabledFontColor);
             SetColor("font_color_fg", ControlName, FontColor);
 
-            SetIcon("decrement", ControlName, (Texture)IconSet.Get("GuiScrollArrowLeft"));
-            SetIcon("decrement_highlight", ControlName, (Texture)IconSet.Get("GuiScrollArrowLeftHl"));
-            SetIcon("increment", ControlName, (Texture)IconSet.Get("GuiScrollArrowRight"));
-            SetIcon("increment_highlight", ControlName, (Texture)IconSet.Get("GuiScrollArrowRightHl"));
-            SetIcon("menu", ControlName, (Texture)IconSet.Get("GuiTabMenu"));
-            SetIcon("menu_highlight", ControlName, (Texture)IconSet.Get("GuiTabMenuHl"));
+            SetIcon("decrement", ControlName, IconSet.GuiScrollArrowLeft);
+            SetIcon("decrement_highlight", ControlName, IconSet.GuiScrollArrowLeftHl);
+            SetIcon("increment", ControlName, IconSet.GuiScrollArrowRight);
+            SetIcon("increment_highlight", ControlName, IconSet.GuiScrollArrowRightHl);
+            SetIcon("menu", ControlName, IconSet.GuiTabMenu);
+            SetIcon("menu_highlight", ControlName, IconSet.GuiTabMenuHl);
 
             SetStylebox("panel", ControlName, TabStylePanel);
             // All the bottom borders need to be zero
@@ -1210,11 +1227,11 @@ namespace AutoThemes
             SetColor("font_color_bg", ControlName, DisabledFontColor);
             SetColor("font_color_fg", ControlName, FontColor);
 
-            SetIcon("close", ControlName, (Texture)IconSet.Get("GuiClose"));
-            SetIcon("decrement", ControlName, (Texture)IconSet.Get("GuiScrollArrowLeft"));
-            SetIcon("decrement_highlight", ControlName, (Texture)IconSet.Get("GuiScrollArrowLeftHl"));
-            SetIcon("increment", ControlName, (Texture)IconSet.Get("GuiScrollArrowRight"));
-            SetIcon("increment_highlight", ControlName, (Texture)IconSet.Get("GuiScrollArrowRightHl"));
+            SetIcon("close", ControlName, IconSet.GuiClose);
+            SetIcon("decrement", ControlName, IconSet.GuiScrollArrowLeft);
+            SetIcon("decrement_highlight", ControlName, IconSet.GuiScrollArrowLeftHl);
+            SetIcon("increment", ControlName, IconSet.GuiScrollArrowRight);
+            SetIcon("increment_highlight", ControlName, IconSet.GuiScrollArrowRightHl);
 
             SetStylebox("button", ControlName, ButtonNormalStyle);
             SetStylebox("button_pressed", ControlName, ButtonPressedStyle);
@@ -1230,10 +1247,10 @@ namespace AutoThemes
             SetColor("font_color", ControlName, FontColor);
             SetColor("selection_color", ControlName, HighlightColor);
 
-            SetIcon("fold", ControlName, (Texture)IconSet.Get("GuiTreeArrowDown"));
-            SetIcon("folded", ControlName, (Texture)IconSet.Get("GuiTreeArrowRight"));
-            SetIcon("space", ControlName, (Texture)IconSet.Get("GuiSpace"));
-            SetIcon("tab", ControlName, (Texture)IconSet.Get("GuiTab"));
+            SetIcon("fold", ControlName, IconSet.GuiTreeArrowDown);
+            SetIcon("folded", ControlName, IconSet.GuiTreeArrowRight);
+            SetIcon("space", ControlName, IconSet.GuiSpace);
+            SetIcon("tab", ControlName, IconSet.GuiTab);
 
             SetStylebox("focus", ControlName, TextEditFocus);
             SetStylebox("normal", ControlName, TextEditBackground);
@@ -1282,12 +1299,12 @@ namespace AutoThemes
             SetColor("children_hl_line_color", ControlName, ChildrenHlLineColor);
             SetColor("parent_hl_line_color", ControlName, ParentHlLineColor);
 
-            SetIcon("arrow", ControlName, (Texture)IconSet.Get("GuiTreeArrowDown"));
-            SetIcon("arrow_collapsed", ControlName, (Texture)IconSet.Get("GuiTreeArrowRight"));
-            SetIcon("checked", ControlName, (Texture)IconSet.Get("GuiChecked"));
-            SetIcon("select_arrow", ControlName, (Texture)IconSet.Get("GuiTreeArrowDown"));
-            SetIcon("unchecked", ControlName, (Texture)IconSet.Get("GuiUnchecked"));
-            SetIcon("updown", ControlName, (Texture)IconSet.Get("GuiTreeArrowUpdown"));
+            SetIcon("arrow", ControlName, IconSet.GuiTreeArrowDown);
+            SetIcon("arrow_collapsed", ControlName, IconSet.GuiTreeArrowRight);
+            SetIcon("checked", ControlName, IconSet.GuiChecked);
+            SetIcon("select_arrow", ControlName, IconSet.GuiTreeArrowDown);
+            SetIcon("unchecked", ControlName, IconSet.GuiUnchecked);
+            SetIcon("updown", ControlName, IconSet.GuiTreeArrowUpdown);
 
             SetStylebox("bg", ControlName, PanelBgBorderless);
             SetStylebox("bg_focus", ControlName, PanelFocusBg);
@@ -1313,7 +1330,7 @@ namespace AutoThemes
             string ControlName = nameof(VScrollBar);
 
             StyleBoxTexture grabber = new();
-            grabber.Texture = (Texture)IconSet.Get("GuiScrollGrabber");
+            grabber.Texture = IconSet.GuiScrollGrabber;
             grabber.DrawCenter = true;
             grabber.MarginBottom = 6;
             grabber.MarginLeft = 6;
@@ -1328,14 +1345,14 @@ namespace AutoThemes
             grabber.AxisStretchVertical = StyleBoxTexture.AxisStretchMode.Stretch;
 
             StyleBoxTexture grabberHl = grabber.Copy();
-            grabberHl.Texture = (Texture)IconSet.Get("GuiScrollGrabberHl");
+            grabberHl.Texture = IconSet.GuiScrollGrabberHl;
             grabberHl.MarginBottom = 5;
             grabberHl.MarginLeft = 5;
             grabberHl.MarginRight = 5;
             grabberHl.MarginTop = 5;
 
             StyleBoxTexture grabberPressed = grabber.Copy();
-            grabberPressed.Texture = (Texture)IconSet.Get("GuiScrollGrabberPressed");
+            grabberPressed.Texture = IconSet.GuiScrollGrabberPressed;
 
             StyleBoxTexture scroll = grabberPressed.Copy();
             ImageTexture scrollTexture = new();
@@ -1368,8 +1385,8 @@ namespace AutoThemes
         {
             string ControlName = nameof(VSlider);
             // V Slider
-            SetIcon("grabber", ControlName, (Texture)IconSet.Get("GuiSliderGrabber"));
-            SetIcon("grabber_highlight", ControlName, (Texture)IconSet.Get("GuiSliderGrabberHl"));
+            SetIcon("grabber", ControlName, IconSet.GuiSliderGrabber);
+            SetIcon("grabber_highlight", ControlName, IconSet.GuiSliderGrabberHl);
 
             SetStylebox("grabber_area", ControlName, HighlightStyle);
             SetStylebox("grabber_area_highlight", ControlName, HighlightStyle);
@@ -1379,7 +1396,7 @@ namespace AutoThemes
         {
             string ControlName = nameof(VSplitContainer);
 
-            SetIcon("grabber", ControlName, (Texture)IconSet.Get("GuiVsplitter"));
+            SetIcon("grabber", ControlName, IconSet.GuiVsplitter);
 
             SetStylebox("bg", ControlName, PanelBdBorderless);
         }
@@ -1389,8 +1406,8 @@ namespace AutoThemes
             // Window Dialog
             SetColor("title_color", ControlName, FontColor);
 
-            SetIcon("close", ControlName, (Texture)IconSet.Get("GuiClose"));
-            SetIcon("close_highlight", ControlName, (Texture)IconSet.Get("GuiCloseCustomizable"));
+            SetIcon("close", ControlName, IconSet.GuiClose);
+            SetIcon("close_highlight", ControlName, IconSet.GuiCloseCustomizable);
 
             SetStylebox("panel", ControlName, WindowDialogPanelStyle);
         }

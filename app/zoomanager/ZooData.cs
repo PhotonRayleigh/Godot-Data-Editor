@@ -11,6 +11,7 @@ using Newtonsoft.Json.Linq;
 using System.Xml.Linq;
 using System.Threading.Tasks;
 
+[Tool]
 public class ZooData
 {
     private int _ZooID = 0;

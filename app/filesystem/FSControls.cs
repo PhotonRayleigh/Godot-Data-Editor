@@ -32,9 +32,9 @@ public class FSControls : HBoxContainer
 
     public void SetIcons(AutoTheme theme)
     {
-        BackButton.Icon = (Texture)theme.IconSet.Get("ArrowLeft");
-        ForwardButton.Icon = (Texture)theme.IconSet.Get("ArrowRight");
-        UpButton.Icon = (Texture)theme.IconSet.Get("ArrowUp");
-        RefreshButton.Icon = (Texture)theme.IconSet.Get("Reload");
+        BackButton.Icon = theme.IconSet.ArrowLeft;
+        ForwardButton.Icon = theme.IconSet.ArrowRight;
+        UpButton.Icon = theme.IconSet.ArrowUp;
+        RefreshButton.Icon = theme.IconSet.Reload;
     }
 }

@@ -32,12 +32,6 @@ window/tablet_driver.pc="winink"
 
 enabled=PoolStringArray( "res://addons/AutoTheme/plugin.cfg", "res://addons/MonoDebuggerQM/plugin.cfg" )
 
-[gui]
-
-theme/use_hidpi=true
-theme/custom="res://resources/themes/Gray_Editor_Theme.tres"
-theme/custom_font="res://resources/fonts/Roboto_Regular 17.tres"
-
 [input]
 
 mouse_left_click={

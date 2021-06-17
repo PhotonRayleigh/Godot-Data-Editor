@@ -96,7 +96,7 @@ public partial class FileSystem : Panel, IAutoThemeUser
     public override void _ExitTree()
     {
         base._ExitTree();
-        customTheme.Disconnect("changed", this, nameof(_OnAutoThemeChanged));
+        if (customTheme is not null) customTheme.Disconnect("changed", this, nameof(_OnAutoThemeChanged));
     }
 
     public FileSystem()

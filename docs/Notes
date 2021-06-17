@@ -16,3 +16,6 @@ depending on if it is in the context of the editor or not.
 
 I think good practice will be to include editor code and
 non-editor code for every scene, as needed. 
+
+5) Any resources that are accessed by other [Tool] resources need to be marked
+with [Tool] or they won't work.

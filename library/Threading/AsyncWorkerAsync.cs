@@ -1,9 +1,14 @@
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-
+#if GODOT
+using GDT = Godot;
+#endif
 namespace SparkLib
 {
+#if GODOT
+    [GDT.Tool]
+#endif
     public class AsyncWorkerAsync
     {
         private List<Task> taskList = new();

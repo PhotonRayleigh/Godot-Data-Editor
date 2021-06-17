@@ -1,3 +1,7 @@
+// Author: PhotonRayleigh
+// Year: 2021
+// GitHub: https://github.com/PhotonRayleigh
+
 using Godot;
 using System;
 using System.Linq;
@@ -28,9 +32,13 @@ public class Program : Control
 
     public override void _Ready()
     {
-        GD.Print("Initializing Root...");
-        GD.Print($"Main Thread # {System.Threading.Thread.CurrentThread.ManagedThreadId}");
-        GD.Print($"user:// data directory: {OS.GetUserDataDir()}");
+        if (!Engine.EditorHint)
+        {
+            GD.Print("Initializing Root...");
+            GD.Print($"Main Thread # {System.Threading.Thread.CurrentThread.ManagedThreadId}");
+            GD.Print($"user:// data directory: {OS.GetUserDataDir()}");
+        }
+
         if (Theme is not null && Theme is AutoTheme)
         {
             customTheme = Theme as AutoTheme;
@@ -53,14 +61,16 @@ public class Program : Control
     public override void _ExitTree()
     {
         base._ExitTree();
-        customTheme.Disconnect("changed", this, nameof(ThemeChanged));
-        var AutoThemeNodes = GetTree().GetNodesInGroup("AutoThemeNodes");
-        foreach (Node node in AutoThemeNodes)
+        if (customTheme is not null)
         {
-            if (node is IAutoThemeUser autoNode)
+            customTheme.Disconnect("changed", this, nameof(ThemeChanged));
+            var AutoThemeNodes = GetTree().GetNodesInGroup("AutoThemeNodes");
+            foreach (Node node in AutoThemeNodes)
             {
-                autoNode.ATheme = customTheme;
-                customTheme.Disconnect("changed", node, nameof(autoNode._OnAutoThemeChanged));
+                if (node is IAutoThemeUser autoNode)
+                {
+                    customTheme.Disconnect("changed", node, nameof(autoNode._OnAutoThemeChanged));
+                }
             }
         }
     }

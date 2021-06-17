@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json; // Full featured JSON serializer
 using Newtonsoft.Json.Linq;
 
+[Tool]
 public class JSONInspector : Control
 {
 
@@ -23,28 +24,33 @@ public class JSONInspector : Control
 
     public JSONInspector()
     {
-        DefaultZooData();
+        if (!Engine.EditorHint)
+        {
+            DefaultZooData();
+        }
     }
 
     public override void _Ready()
     {
-        OutputNode = GetNode<RichTextLabel>("RightTabSet/JsonOutput/OutputText");
-        UserPath = GetNode<LineEdit>("CenterControls/FilePath");
-        FileSystemPanel = GetNode<FileSystem>("LeftTabSet/FileSystem");
+        if (!Engine.EditorHint)
+        {
+            OutputNode = GetNode<RichTextLabel>("RightTabSet/JsonOutput/OutputText");
+            UserPath = GetNode<LineEdit>("CenterControls/FilePath");
+            FileSystemPanel = GetNode<FileSystem>("LeftTabSet/FileSystem");
 
-        DataObjectsList = GetNode<ItemList>("CenterControls/DataObjectsList");
-        DataObjectsList.AddItem("Zoos");
-        DataObjectsList.AddItem("Animals");
-        DataObjectsList.AddItem("ZooAnimals");
+            DataObjectsList = GetNode<ItemList>("CenterControls/DataObjectsList");
+            DataObjectsList.AddItem("Zoos");
+            DataObjectsList.AddItem("Animals");
+            DataObjectsList.AddItem("ZooAnimals");
 
-        UserDataTable = GetNode<DataTable>("RightTabSet/DataTable");
-        //UserDataTable.LoadData(new string[] { "ID", "Name" }, new string[][] { new string[] { "1", "2" }, new string[] { "3", "4" } });
-        UserDataTable.LoadData<Zoo>(ZooInfo.Zoos);
+            UserDataTable = GetNode<DataTable>("RightTabSet/DataTable");
+            //UserDataTable.LoadData(new string[] { "ID", "Name" }, new string[][] { new string[] { "1", "2" }, new string[] { "3", "4" } });
+            UserDataTable.LoadData<Zoo>(ZooInfo.Zoos);
 
-        //OutputNode.Text = ZooInfo.ToString();
-        GD.Print($"Current Dir: {FileDirectory.GetCurrentDir()}");
-        if (FileDirectory.Open("user://") == Error.Ok) GD.Print("user:// opened successfully");
-
+            //OutputNode.Text = ZooInfo.ToString();
+            GD.Print($"Current Dir: {FileDirectory.GetCurrentDir()}");
+            if (FileDirectory.Open("user://") == Error.Ok) GD.Print("user:// opened successfully");
+        }
         return;
     }
 
