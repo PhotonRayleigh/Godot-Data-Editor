@@ -1,7 +1,7 @@
 using System;
 using Godot;
 
-namespace SparkLib.Godot.Theme
+namespace SparkLib.GodotLib.Theme
 {
     public static class StyleExtensions
     {

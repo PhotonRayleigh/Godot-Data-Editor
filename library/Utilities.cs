@@ -4,9 +4,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SparkLib.Godot
+namespace SparkLib.GodotLib
 {
-    public class Utilities : object
+    public class Utilities : Godot.Object
     {
         public static T? SafeGetNode<T>(Node ThisNode, string PathToNode) where T : Node
         {

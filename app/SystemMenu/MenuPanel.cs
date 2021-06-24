@@ -1,7 +1,7 @@
 using Godot;
 using System;
 using System.Text;
-using SparkLib.Godot;
+using SparkLib.GodotLib;
 
 public class MenuPanel : Panel
 {
