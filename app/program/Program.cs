@@ -20,7 +20,7 @@ using SparkLib;
 using AutoThemes;
 
 [Tool]
-public class Program : Control
+public class Program : Control, IAutoThemeUser
 {
     // Declare member variables here. Examples:
     // private int a = 2;
@@ -28,7 +28,10 @@ public class Program : Control
 
     // Called when the node enters the scene tree for the first time.
     public bool isReady = false;
-    AutoTheme? customTheme;
+    // AutoTheme? customTheme;
+    public AutoThemeSetter? ThemeSource { get; set; }
+
+    ColorRect Background;
 
     public override void _Ready()
     {
@@ -37,42 +40,46 @@ public class Program : Control
             GD.Print("Initializing Root...");
             GD.Print($"Main Thread # {System.Threading.Thread.CurrentThread.ManagedThreadId}");
             GD.Print($"user:// data directory: {OS.GetUserDataDir()}");
+
         }
 
-        if (Theme is not null && Theme is AutoTheme)
-        {
-            customTheme = Theme as AutoTheme;
-            customTheme!.Connect("changed", this, nameof(ThemeChanged));
-            var AutoThemeNodes = GetTree().GetNodesInGroup("AutoThemeNodes");
-            foreach (Node node in AutoThemeNodes)
-            {
-                if (node is IAutoThemeUser autoNode)
-                {
-                    autoNode.ATheme = customTheme;
-                    customTheme.Connect("changed", node, nameof(autoNode._OnAutoThemeChanged));
-                    autoNode._OnAutoThemeChanged();
-                }
-            }
-        }
+        Background = GetNode<ColorRect>("Background");
+
+        // if (Theme is not null && Theme is AutoTheme)
+        // {
+        //     customTheme = Theme as AutoTheme;
+        //     customTheme!.Connect("changed", this, nameof(ThemeChanged));
+        //     var AutoThemeNodes = GetTree().GetNodesInGroup("AutoThemeNodes");
+        //     foreach (Node node in AutoThemeNodes)
+        //     {
+        //         if (node is IAutoThemeUser autoNode)
+        //         {
+        //             autoNode.ATheme = customTheme;
+        //             customTheme.Connect("changed", node, nameof(autoNode._OnAutoThemeChanged));
+        //             autoNode._OnAutoThemeChanged();
+        //         }
+        //     }
+        // }
         isReady = true;
+
         return;
     }
 
     public override void _ExitTree()
     {
         base._ExitTree();
-        if (customTheme is not null)
-        {
-            customTheme.Disconnect("changed", this, nameof(ThemeChanged));
-            var AutoThemeNodes = GetTree().GetNodesInGroup("AutoThemeNodes");
-            foreach (Node node in AutoThemeNodes)
-            {
-                if (node is IAutoThemeUser autoNode)
-                {
-                    customTheme.Disconnect("changed", node, nameof(autoNode._OnAutoThemeChanged));
-                }
-            }
-        }
+        // if (customTheme is not null)
+        // {
+        //     customTheme.Disconnect("changed", this, nameof(ThemeChanged));
+        //     var AutoThemeNodes = GetTree().GetNodesInGroup("AutoThemeNodes");
+        //     foreach (Node node in AutoThemeNodes)
+        //     {
+        //         if (node is IAutoThemeUser autoNode)
+        //         {
+        //             customTheme.Disconnect("changed", node, nameof(autoNode._OnAutoThemeChanged));
+        //         }
+        //     }
+        // }
     }
 
     //  // Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -145,14 +152,13 @@ public class Program : Control
     }
 
     // bool isUpdating = false;
-    protected void ThemeChanged()
+    public void _OnAutoThemeChanged()
     {
-        if (customTheme is not null && isReady)
+        if (ThemeSource is not null && isReady)
         {
             //isUpdating = true;
             //await customTheme.RefreshAsync();
-            var bg = GetNode<ColorRect>("Background");
-            bg.Color = customTheme.BackdropColor;
+            Background.Color = ThemeSource.ThemeData.BackdropColor;
             // isUpdating = false;
         }
     }

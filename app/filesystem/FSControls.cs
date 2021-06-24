@@ -30,11 +30,11 @@ public class FSControls : HBoxContainer
     //      
     //  }
 
-    public void SetIcons(AutoTheme theme)
+    public void SetIcons(AutoThemeSetter themeSource)
     {
-        BackButton.Icon = theme.IconSet.ArrowLeft;
-        ForwardButton.Icon = theme.IconSet.ArrowRight;
-        UpButton.Icon = theme.IconSet.ArrowUp;
-        RefreshButton.Icon = theme.IconSet.Reload;
+        BackButton.Icon = themeSource.ThemeData.IconSet.ArrowLeft;
+        ForwardButton.Icon = themeSource.ThemeData.IconSet.ArrowRight;
+        UpButton.Icon = themeSource.ThemeData.IconSet.ArrowUp;
+        RefreshButton.Icon = themeSource.ThemeData.IconSet.Reload;
     }
 }

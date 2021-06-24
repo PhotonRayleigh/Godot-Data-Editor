@@ -4,7 +4,7 @@
 
 using Godot;
 using System;
-using SparkLib.Godot.Theme;
+using SparkLib.GodotLib.Theme;
 using SparkLib;
 using System.Threading.Tasks;
 
@@ -1128,7 +1128,7 @@ namespace AutoThemes
             SetStylebox("labeled_separator_left", ControlName, SeparatorStyle);
             SetStylebox("labeled_separator_right", ControlName, SeparatorStyle);
             SetStylebox("normal", ControlName, PanelBgBorderless);
-            SetStylebox("panel", ControlName, PanelFg);
+            SetStylebox("panel", ControlName, PanelTextFg);
             SetStylebox("pressed", ControlName, PanelFocusBg); // Double check this
             SetStylebox("separator", ControlName, SeparatorStyle);
         }

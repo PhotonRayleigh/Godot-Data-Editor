@@ -8,8 +8,20 @@
 
 config_version=4
 
-_global_script_classes=[  ]
+_global_script_classes=[ {
+"base": "Panel",
+"class": "MenuPanel",
+"language": "GDScript",
+"path": "res://app/SystemMenu/MenuPanel.gd"
+}, {
+"base": "Control",
+"class": "Program",
+"language": "GDScript",
+"path": "res://app/program/Program.gd"
+} ]
 _global_script_class_icons={
+"MenuPanel": "",
+"Program": ""
 }
 
 [application]

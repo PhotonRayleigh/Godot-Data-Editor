@@ -1,0 +1,14 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://resources/themes/ThemeSetterTheme.tres" type="Theme" id=1]
+[ext_resource path="res://addons/AutoTheme/AutoThemeSetter.cs" type="Script" id=2]
+[ext_resource path="res://resources/themes/AutoThemeIconsLight.tres" type="Resource" id=3]
+[ext_resource path="res://resources/themes/AutoThemeIconsDark.tres" type="Resource" id=4]
+
+[node name="AutoThemeSetter" type="Node"]
+script = ExtResource( 2 )
+IconSetDark = ExtResource( 4 )
+IconSetLight = ExtResource( 3 )
+BaseColor = Color( 0.423529, 0.184314, 0.184314, 1 )
+AutoRefresh = true
+ThemeResource = ExtResource( 1 )

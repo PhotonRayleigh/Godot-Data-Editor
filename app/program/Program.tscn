@@ -1,11 +1,12 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=9 format=2]
 
-[ext_resource path="res://app/program/Program.cs" type="Script" id=1]
+[ext_resource path="res://app/program/Program.gd" type="Script" id=1]
+[ext_resource path="res://resources/themes/Custom_Theme.tres" type="Theme" id=2]
 [ext_resource path="res://app/program/SceneHandler.cs" type="Script" id=3]
-[ext_resource path="res://app/SystemMenu/MenuPanel.cs" type="Script" id=4]
+[ext_resource path="res://app/SystemMenu/MenuPanel.gd" type="Script" id=4]
 [ext_resource path="res://resources/fonts/Roboto/Roboto-Regular.ttf" type="DynamicFontData" id=5]
 [ext_resource path="res://app/jsoninspector/JSONInspector.tscn" type="PackedScene" id=6]
-[ext_resource path="res://resources/themes/Custom_Theme.tres" type="Theme" id=7]
+[ext_resource path="res://resources/themes/ThemeSetterTheme.tres" type="Theme" id=10]
 
 [sub_resource type="DynamicFont" id=1]
 size = 35
@@ -13,10 +14,12 @@ use_mipmaps = true
 use_filter = true
 font_data = ExtResource( 5 )
 
-[node name="Main" type="Control"]
+[node name="Main" type="Control" groups=[
+"AutoThemeNodes",
+]]
 anchor_right = 1.0
 anchor_bottom = 1.0
-theme = ExtResource( 7 )
+theme = ExtResource( 2 )
 script = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
@@ -28,7 +31,7 @@ script = ExtResource( 3 )
 [node name="Background" type="ColorRect" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
-color = Color( 0.224224, 0.224224, 0.235529, 1 )
+color = Color( 0.163388, 0.144941, 0.181835, 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -80,8 +83,8 @@ text = "Please pick a program to run using the Menu"
 align = 1
 
 [node name="JSONInspector" parent="AppHook" instance=ExtResource( 6 )]
-anchor_top = -0.00173611
-anchor_bottom = 0.998264
+anchor_top = -0.00348742
+anchor_bottom = 0.996513
 margin_top = 0.991318
 margin_bottom = -0.00866699
 
@@ -90,7 +93,7 @@ margin_bottom = -0.00866699
 [node name="MenuPanel" type="Panel" parent="SystemMenuHook"]
 anchor_right = 1.0
 margin_bottom = 29.0
-theme = ExtResource( 7 )
+theme = ExtResource( 10 )
 script = ExtResource( 4 )
 __meta__ = {
 "_edit_use_anchors_": false
@@ -104,7 +107,7 @@ __meta__ = {
 }
 
 [node name="MenuButton" type="MenuButton" parent="SystemMenuHook/MenuPanel/MenuHBox"]
-margin_right = 52.0
+margin_right = 46.0
 margin_bottom = 29.0
 text = "Menu"
 items = [ "Programs", null, 0, false, true, 0, 0, null, "", false, "", null, 0, false, true, 1, 0, null, "", true, "Http Download", null, 0, false, false, 2, 0, null, "", false, "JSON Inspector", null, 0, false, false, 3, 0, null, "", false ]
@@ -112,8 +115,8 @@ switch_on_hover = true
 
 [node name="PrintMenuChildren" type="Button" parent="SystemMenuHook/MenuPanel/MenuHBox"]
 visible = false
-margin_left = 58.0
-margin_right = 218.0
+margin_left = 50.0
+margin_right = 187.0
 margin_bottom = 29.0
 text = "Print Menu Children"
 __meta__ = {

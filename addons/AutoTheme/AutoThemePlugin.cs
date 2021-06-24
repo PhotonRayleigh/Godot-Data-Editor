@@ -17,6 +17,10 @@ namespace AutoThemes
             Script AutoThemeIconsScript = GD.Load<Script>("addons/AutoTheme/AutoThemeIcons.cs");
             Texture AutoThemeIconsIcon = GD.Load<Texture>("addons/AutoTheme/resources/icons/Image.svg");
             AddCustomType("AutoThemeIcons", "Resource", AutoThemeIconsScript, AutoThemeIconsIcon);
+
+            Script AutoThemeSetterScript = GD.Load<Script>("addons/AutoTheme/AutoThemeSetter.cs");
+            Texture AutoThemeSetterIcon = GD.Load<Texture>("addons/AutoTheme/resources/icons/Theme.svg");
+            AddCustomType("AutoThemeSetter", "Node", AutoThemeSetterScript, AutoThemeSetterIcon);
         }
 
         public override void _ExitTree()
@@ -24,6 +28,7 @@ namespace AutoThemes
             base._ExitTree();
             RemoveCustomType("AutoTheme");
             RemoveCustomType("AutoThemeIcons");
+            RemoveCustomType("AutoThemeSetter");
         }
     }
 }

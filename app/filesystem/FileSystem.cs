@@ -39,12 +39,15 @@ public partial class FileSystem : Panel, IAutoThemeUser
 
     protected FSViewTree.Node[] clipBoard = new FSViewTree.Node[0];
 
-    protected AutoTheme? customTheme;
-    public AutoTheme? ATheme
-    {
-        get => customTheme;
-        set => customTheme = value;
-    }
+    // protected AutoTheme? customTheme;
+    // public AutoTheme? ATheme
+    // {
+    //     get => customTheme;
+    //     set => customTheme = value;
+    // }
+
+    public AutoThemeSetter? ThemeSource { set; get; }
+
     FSControls? controlBar;
 
     public override void _Ready()
@@ -96,7 +99,7 @@ public partial class FileSystem : Panel, IAutoThemeUser
     public override void _ExitTree()
     {
         base._ExitTree();
-        if (customTheme is not null) customTheme.Disconnect("changed", this, nameof(_OnAutoThemeChanged));
+        // if (customTheme is not null) customTheme.Disconnect("changed", this, nameof(_OnAutoThemeChanged));
     }
 
     public FileSystem()
@@ -452,7 +455,7 @@ public partial class FileSystem : Panel, IAutoThemeUser
 
     public void _OnAutoThemeChanged()
     {
-        controlBar.SetIcons(customTheme);
+        controlBar.SetIcons(ThemeSource);
     }
 
     /// <summary>
