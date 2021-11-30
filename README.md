@@ -1,3 +1,5 @@
+**Notice:** Since I've switched to Flutter, I've depreciated this project and will no longer be working on it.
+
 # Spark-Lab
 A practice project to build a cross platform GUI desktop app for editing databases of various types.
 
